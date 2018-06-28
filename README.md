@@ -1,5 +1,5 @@
 # Jamf-Pro-Scripts
-## Various scripts for use with Jamf Pro.
+## Various scripts for use with Jamf Pro
 
 Dan K. Snelson
 dan@snelson.us
