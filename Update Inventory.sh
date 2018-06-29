@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ########################################################################################################
-# Update inventory with endUsername, from Enterprise Connect's "adUsername.: See also:                 #
+# Update inventory with endUsername, from Enterprise Connect's "adUsername." See also:                 #
 # http://docs.jamf.com/10.5.0/jamf-pro/administrator-guide/Computer_Inventory_Collection_Settings.html #
 ########################################################################################################
 
