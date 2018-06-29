@@ -28,29 +28,24 @@ else
 
 			/usr/local/jamf/bin/jamf recon -endUsername ${loggedInUser}
 
-			exit 0
-
 		else	# Enterprise Connect installed and the user is logged in
 
 			echo "Starting inventory update for Enterprise Connect user ${adUsername} ..."
 
 			/usr/local/jamf/bin/jamf recon -endUsername ${adUsername}
 
-			exit 0
-
 		fi
 
-else
+	else
 
 		echo "Enterprise Connect NOT installed; Starting inventory update for the logged-in user ${loggedInUser} ..."
 
 		/usr/local/jamf/bin/jamf recon -endUsername ${loggedInUser}
 
-		exit 0
-
 	fi
 
 fi
+
 
 
 exit 0
