@@ -48,7 +48,7 @@ targetVolume=$3
 #   Version 1.0.5, 21-Jun-2018, Dan K. Snelson
 #      Updated PerformUpdate function; thanks @qharouff
 #      Recorded the version of msupdate installed
-#      
+#
 ################################################################################################################
 
 ###
@@ -93,8 +93,8 @@ function CheckMAUInstall() {
 # Function to check whether Office apps are installed
 function CheckAppInstall() {
 	if [ ! -e "/Applications/Microsoft ${1}.app" ]; then
-    		echo "*** Error: Microsoft ${1} is not installed; exiting ***"
-    		exit 1
+    echo "*** Error: Microsoft ${1} is not installed; exiting ***"
+    exit 1
 	else
 		echo "• Microsoft ${1} installed; proceeding ..."
 	fi
@@ -106,11 +106,11 @@ function CheckAppInstall() {
 function DetermineLoginState() {
 	CONSOLE=$( stat -f%Su /dev/console )
 	if [[ "${CONSOLE}" == "root" ]] ; then
-    		echo "• No user logged in"
+    echo "• No user logged in"
 		CMD_PREFIX=""
 	else
-    		echo "• User ${CONSOLE} is logged in"
-    		CMD_PREFIX="sudo -u ${CONSOLE} "
+    echo "• User ${CONSOLE} is logged in"
+    CMD_PREFIX="sudo -u ${CONSOLE} "
 	fi
 }
 
@@ -118,8 +118,8 @@ function DetermineLoginState() {
 
 # Function to register an application with MAU
 function RegisterApp() {
-   	echo "• Register App: $1 $2"
-   	$(${CMD_PREFIX}defaults write com.microsoft.autoupdate2 Applications -dict-add "$1" "{ 'Application ID' = '$2'; LCID = 1033 ; }")
+	echo "• Register App: $1 $2"
+	$(${CMD_PREFIX}defaults write com.microsoft.autoupdate2 Applications -dict-add "$1" "{ 'Application ID' = '$2'; LCID = 1033 ; }")
 }
 
 
@@ -158,42 +158,41 @@ echo "• Updating Microsoft ${targetApp} to version ${targetVersion} ..."
 
 case "${targetApp}" in
 
- "Word" )
+  "Word" )
 
-		 RegisterApp "${PATH_WORD}" "MSWD15"
-		 PerformUpdate "MSWD15" "${targetVersion}"
-		 ;;
+		RegisterApp "${PATH_WORD}" "MSWD15"
+		PerformUpdate "MSWD15" "${targetVersion}"
+		;;
 
- "Excel" )
+  "Excel" )
 
-		 RegisterApp "${PATH_EXCEL}" "XCEL15"
-		 PerformUpdate "XCEL15" "${targetVersion}"
-		 ;;
-
+		RegisterApp "${PATH_EXCEL}" "XCEL15"
+		PerformUpdate "XCEL15" "${targetVersion}"
+		;;
 
   "PowerPoint" )
 
- 		 RegisterApp "${PATH_POWERPOINT}" "PPT315"
- 		 PerformUpdate "PPT315" "${targetVersion}"
- 		 ;;
+		RegisterApp "${PATH_POWERPOINT}" "PPT315"
+		PerformUpdate "PPT315" "${targetVersion}"
+		;;
 
   "Outlook" )
 
- 		 RegisterApp "${PATH_OUTLOOK}" "OPIM15"
- 		 PerformUpdate "OPIM15" "${targetVersion}"
- 		 ;;
+		RegisterApp "${PATH_OUTLOOK}" "OPIM15"
+		PerformUpdate "OPIM15" "${targetVersion}"
+		;;
 
-   "OneNote" )
+  "OneNote" )
 
-  		 RegisterApp "${PATH_ONENOTE}" "ONMC15"
-  		 PerformUpdate "ONMC15" "${targetVersion}"
-  		 ;;
+		RegisterApp "${PATH_ONENOTE}" "ONMC15"
+		PerformUpdate "ONMC15" "${targetVersion}"
+		;;
 
  *)
 
-		 echo "*** Error: Did not recognize the target appliction of ${targetApp}; exiting. ***"
-		 exit 1
-		 ;;
+		echo "*** Error: Did not recognize the target appliction of ${targetApp}; exiting. ***"
+		exit 1
+		;;
 
 esac
 
