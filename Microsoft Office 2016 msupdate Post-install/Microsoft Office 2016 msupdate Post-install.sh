@@ -14,41 +14,41 @@ targetVolume=$3
 #
 #   Microsoft Office 2016 msupdate Post-install
 #   Inspired by: https://github.com/pbowden-msft/msupdatehelper
-#		See: https://www.jamf.com/jamf-nation/discussions/27968/
+#   See: https://www.jamf.com/jamf-nation/discussions/27968/
 #
 #   Microsoft AutoUpdate (MAU) version 3.18 and later includes the "msupdate" binary which can be
-#		used to start the Office for Mac update process.
-#		See: https://docs.microsoft.com/en-us/DeployOffice/mac/update-office-for-mac-using-msupdate
+#   used to start the Office for Mac update process.
+#   See: https://docs.microsoft.com/en-us/DeployOffice/mac/update-office-for-mac-using-msupdate
 #
 #   Jamf Pro 10 Patch Management Software Titles currently require a .PKG to apply updates
-#		(as opposed to a scripted solution.)
+#   as opposed to a scripted solution.)
 #
 #   This script is intended to be used as a post-install script for a payload-free package.
 #
-#		Required naming convention: "Microsoft Excel 2016 msupdate 16.12.18041000.pkg"
-#		• The word after "Microsoft" in the pathToPackage is the application name to be updated (i.e., "Excel").
-#		• The word after "msupdate" in the pathToPackage is the target version number (i.e., "16.14.18061302").
+#   Required naming convention: "Microsoft Excel 2016 msupdate 16.12.18041000.pkg"
+#   • The word after "Microsoft" in the pathToPackage is the application name to be updated (i.e., "Excel").
+#   • The word after "msupdate" in the pathToPackage is the target version number (i.e., "16.14.18061302").
 #
 ################################################################################################################
 #
 # HISTORY
 #
-# 	Version 1.0.0, 26-Apr-2018, Dan K. Snelson
-#			Original version
+#   Version 1.0.0, 26-Apr-2018, Dan K. Snelson
+#      Original version
 #
-#		Version 1.0.1, 24-May-2018, Dan K. Snelson
-#			Added Recon and decreased wait to 60 seconds (from 600)
+#   Version 1.0.1, 24-May-2018, Dan K. Snelson
+#      Added Recon and decreased wait to 60 seconds (from 600)
 #
-#		Version 1.0.3, 25-May-2018, Dan K. Snelson
-#			Added a delay to Recon
+#   Version 1.0.3, 25-May-2018, Dan K. Snelson
+#      Added a delay to Recon
 #
-#		Version 1.0.4, 13-Jun-2018, Dan K. Snelson
-#			Modified the delay for msupdate and Recon
+#   Version 1.0.4, 13-Jun-2018, Dan K. Snelson
+#      Modified the delay for msupdate and Recon
 #
-#		Version 1.0.5, 21-Jun-2018, Dan K. Snelson
-#			Updated the PerformUpdate function
-#			See: https://www.jamf.com/jamf-nation/discussions/27968#responseChild168016
-#
+#   Version 1.0.5, 21-Jun-2018, Dan K. Snelson
+#      Updated PerformUpdate function; thanks @qharouff
+#      Recorded the version of msupdate installed
+#      
 ################################################################################################################
 
 ###
@@ -81,7 +81,7 @@ targetVersion=$( /bin/echo ${1} | /usr/bin/awk '{for (i=1; i<=NF; i++) if ($i~/m
 function CheckMAUInstall() {
 	if [ ! -e "/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app/Contents/MacOS/msupdate" ]; then
 		echo "*** Error: MAU 3.18 or later is required! ***"
-    exit 1
+		exit 1
 	else
 		mauVersion=$( /usr/bin/defaults read "/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app/Contents/Info.plist" CFBundleVersion )
 		echo "• MAU ${mauVersion} installed; proceeding ..."
@@ -93,10 +93,10 @@ function CheckMAUInstall() {
 # Function to check whether Office apps are installed
 function CheckAppInstall() {
 	if [ ! -e "/Applications/Microsoft ${1}.app" ]; then
-    	echo "*** Error: Microsoft ${1} is not installed; exiting ***"
-    	exit 1
+    		echo "*** Error: Microsoft ${1} is not installed; exiting ***"
+    		exit 1
 	else
-			echo "• Microsoft ${1} installed; proceeding ..."
+		echo "• Microsoft ${1} installed; proceeding ..."
 	fi
 }
 
@@ -106,11 +106,11 @@ function CheckAppInstall() {
 function DetermineLoginState() {
 	CONSOLE=$( stat -f%Su /dev/console )
 	if [[ "${CONSOLE}" == "root" ]] ; then
-    echo "• No user logged in"
+    		echo "• No user logged in"
 		CMD_PREFIX=""
 	else
-    echo "• User ${CONSOLE} is logged in"
-    CMD_PREFIX="sudo -u ${CONSOLE} "
+    		echo "• User ${CONSOLE} is logged in"
+    		CMD_PREFIX="sudo -u ${CONSOLE} "
 	fi
 }
 
