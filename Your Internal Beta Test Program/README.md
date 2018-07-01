@@ -1,10 +1,10 @@
 # Your Internal Beta Test Program: Opt-in / Opt-out via Self Service
 
-![Screenshot of Self Service policy](https://raw.githubusercontent.com/dan-snelson/Jamf-Pro-Scripts/master/Your%20Internal%20Beta%20Test%20Program/Screen%20Shot%202018-06-29%20at%2010.00.27%20PM.png)
-
 ## Scripts
 - [Extension Attribute Update.sh](https://github.com/dan-snelson/Jamf-Pro-Scripts/blob/master/Extension%20Attribute%20Update.sh) 
 - [Client-side Functions](https://github.com/dan-snelson/Jamf-Pro-Scripts/tree/master/Client-side%20Functions)
+
+![Screenshot of Self Service policy](https://raw.githubusercontent.com/dan-snelson/Jamf-Pro-Scripts/master/Your%20Internal%20Beta%20Test%20Program/Screen%20Shot%202018-06-29%20at%2010.00.27%20PM.png)
 
 ---
 
