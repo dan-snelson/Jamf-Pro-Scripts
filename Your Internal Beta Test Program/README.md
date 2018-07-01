@@ -1,5 +1,6 @@
-# Your Internal Beta Test Program
-## Opt-in / Opt-out via Self Service
+# Your Internal Beta Test Program: Opt-in / Opt-out via Self Service
+
+![Screenshot of Self Service policy](https://raw.githubusercontent.com/dan-snelson/Jamf-Pro-Scripts/master/Your%20Internal%20Beta%20Test%20Program/Screen%20Shot%202018-06-29%20at%2010.00.27%20PM.png)
 
 ---
 
@@ -11,3 +12,35 @@ Inspired by @elliotjordan's plea to obtain user feedback, we've been using a pop
 - Gamma (i.e., opt-in testers from various teams)
 
 ![Screenshot of Testing Level Extenstion Attribute](https://raw.githubusercontent.com/dan-snelson/Jamf-Pro-Scripts/master/Your%20Internal%20Beta%20Test%20Program/Screen%20Shot%202018-06-29%20at%2010.03.06%20PM.png)
+
+We then have Smart Computer Groups for each of the three levels and a fourth for "none" so we can more easily scope policies.
+
+![Screenshot of Testing: None Smart Group](https://raw.githubusercontent.com/dan-snelson/Jamf-Pro-Scripts/master/Your%20Internal%20Beta%20Test%20Program/Screen%20Shot%202018-06-30%20at%205.07.54%20PM.png)
+
+This has been working well, but has required a Jamf Pro administrator to manually edit each computer record and specify the desired Testing Level.
+
+After being challenged by @mike.paul and @kenglish to leverage the API, a search revealed @seansb's [Updating Pop-Up Extension Attribute Value via API](https://www.jamf.com/jamf-nation/discussions/18307/) post and @mm2270's reply about [Results of single extension attribute via API](https://www.jamf.com/jamf-nation/discussions/15258/results-of-single-extension-attribute-via-api#responseChild93856) we had exactly what we needed.
+
+---
+
+## API Permissions for Computer Extension Attributes
+
+In my rather frustated testing, the API read / write account needs (at least) the following Jamf Pro Objects "Read" and "Update" permissions:
+
+- Computer Extension Attributes
+- Computers
+- User Extension Attributes
+- Users
+
+---
+
+## Script: Update Extension Attribute
+
+You'll need to update the "apiURL" in the following script which leverages parameters 4 though 7 for:
+
+- API Username
+- API Password
+- EA Name (i.e., "Testing Level")
+- EA Value (i.e., "Gamma" or "None")
+
+![Screenshot of Testing: None Smart Group](https://raw.githubusercontent.com/dan-snelson/Jamf-Pro-Scripts/master/Your%20Internal%20Beta%20Test%20Program/Screen%20Shot%202018-06-30%20at%206.06.30%20PM.png)
