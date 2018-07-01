@@ -2,6 +2,10 @@
 
 ![Screenshot of Self Service policy](https://raw.githubusercontent.com/dan-snelson/Jamf-Pro-Scripts/master/Your%20Internal%20Beta%20Test%20Program/Screen%20Shot%202018-06-29%20at%2010.00.27%20PM.png)
 
+## Scripts
+- [Extension Attribute Update.sh](https://github.com/dan-snelson/Jamf-Pro-Scripts/blob/master/Extension%20Attribute%20Update.sh) 
+- [Client-side Functions](https://github.com/dan-snelson/Jamf-Pro-Scripts/tree/master/Client-side%20Functions)
+
 ---
 
 ## Background
@@ -38,7 +42,7 @@ In my rather frustated testing, the API read / write account needs (at least) th
 
 ---
 
-## Script: Update Extension Attribute
+## Script: Extension Attribute Update
 
 You'll need the [Client-side Functions](https://github.com/dan-snelson/Jamf-Pro-Scripts/tree/master/Client-side%20Functions) installed on each Mac and you'll need to update the "apiURL" in the [Extension Attribute Update.sh](https://github.com/dan-snelson/Jamf-Pro-Scripts/blob/master/Extension%20Attribute%20Update.sh) script which leverages parameters 4 though 7 for:
 
