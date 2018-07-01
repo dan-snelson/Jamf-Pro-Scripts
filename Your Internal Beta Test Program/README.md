@@ -14,6 +14,10 @@ Inspired by @elliotjordan's plea to obtain user feedback, we've been using a pop
 ![Screenshot of Testing Level Extenstion Attribute](https://raw.githubusercontent.com/dan-snelson/Jamf-Pro-Scripts/master/Your%20Internal%20Beta%20Test%20Program/Screen%20Shot%202018-06-29%20at%2010.03.06%20PM.png)
 
 We then have Smart Computer Groups for each of the three levels and a fourth for "none" so we can more easily scope policies.
+- Testing: Alpha Group
+- Testing: Beta Group
+- Testing: Gamma Group
+- Testing: None
 
 ![Screenshot of Testing: None Smart Group](https://raw.githubusercontent.com/dan-snelson/Jamf-Pro-Scripts/master/Your%20Internal%20Beta%20Test%20Program/Screen%20Shot%202018-06-30%20at%205.07.54%20PM.png)
 
@@ -36,11 +40,11 @@ In my rather frustated testing, the API read / write account needs (at least) th
 
 ## Script: Update Extension Attribute
 
-You'll need to update the "apiURL" in the following script which leverages parameters 4 though 7 for:
+You'll need the [Client-side Functions](https://github.com/dan-snelson/Jamf-Pro-Scripts/tree/master/Client-side%20Functions) installed on each Mac and you'll need to update the "apiURL" in the [Extension Attribute Update.sh](https://github.com/dan-snelson/Jamf-Pro-Scripts/blob/master/Extension%20Attribute%20Update.sh) script which leverages parameters 4 though 7 for:
 
 - API Username
 - API Password
 - EA Name (i.e., "Testing Level")
 - EA Value (i.e., "Gamma" or "None")
 
-![Screenshot of Testing: None Smart Group](https://raw.githubusercontent.com/dan-snelson/Jamf-Pro-Scripts/master/Your%20Internal%20Beta%20Test%20Program/Screen%20Shot%202018-06-30%20at%206.06.30%20PM.png)
+![Screenshot of Extension Attribute Update.sh](https://raw.githubusercontent.com/dan-snelson/Jamf-Pro-Scripts/master/Your%20Internal%20Beta%20Test%20Program/Screen%20Shot%202018-06-30%20at%206.06.30%20PM.png)
