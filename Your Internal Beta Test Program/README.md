@@ -15,7 +15,7 @@ Inspired by @elliotjordan's plea to obtain user feedback, we've been using a pop
 
 We then have Smart Computer Groups for each of the three levels and a fourth for "none" so we can more easily scope policies.
 
-![Screenshot of Testing: None Smart Group](https://raw.githubusercontent.com/dan-snelson/Jamf-Pro-Scripts/master/Your%20Internal%20Beta%20Test%20Program/Screen%20Shot%202018-06-30%20at%206.06.30%20PM.png)
+![Screenshot of Testing: None Smart Group](https://raw.githubusercontent.com/dan-snelson/Jamf-Pro-Scripts/master/Your%20Internal%20Beta%20Test%20Program/Screen%20Shot%202018-06-30%20at%205.07.54%20PM.png)
 
 This has been working well, but has required a Jamf Pro administrator to manually edit each computer record and specify the desired Testing Level.
 
@@ -43,3 +43,4 @@ You'll need to update the "apiURL" in the following script which leverages param
 - EA Name (i.e., "Testing Level")
 - EA Value (i.e., "Gamma" or "None")
 
+![Screenshot of Testing: None Smart Group](https://raw.githubusercontent.com/dan-snelson/Jamf-Pro-Scripts/master/Your%20Internal%20Beta%20Test%20Program/Screen%20Shot%202018-06-30%20at%206.06.30%20PM.png)
