@@ -20,9 +20,9 @@
 #
 ####################################################################################################
 #
-#	USE
+# USE
 #
-#	Search for "companyname" and replace with the name of your organization; install on each client
+# 	Search for "companyname" and replace with the name of your organization; install on each client
 #
 ####################################################################################################
 
