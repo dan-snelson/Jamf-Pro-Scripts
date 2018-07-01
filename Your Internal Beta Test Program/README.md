@@ -48,3 +48,19 @@ You'll need the [Client-side Functions](https://github.com/dan-snelson/Jamf-Pro-
 - EA Value (i.e., "Gamma" or "None")
 
 ![Screenshot of Extension Attribute Update.sh](https://raw.githubusercontent.com/dan-snelson/Jamf-Pro-Scripts/master/Your%20Internal%20Beta%20Test%20Program/Screen%20Shot%202018-06-30%20at%206.06.30%20PM.png)
+
+---
+
+## Opt-in Beta Test Program Self Service Policy
+
+Create an ongoing Self Sevice policy, scoped to "Testing: None" which includes a single Scripts option of "Update Extension Attribute" and specify:
+- API Username (Read / Write)
+- API Password (Read / Write)
+- EA Name (i.e., "Testing Level")
+- EA Value (i.e., "Gamma" or "None")
+
+---
+
+## Opt-out Beta Test Program Self Service Policy
+
+Clone your Opt-in policy and change EA Value to "None" to unset a computer's Testing Level; scope to your testing groups.
