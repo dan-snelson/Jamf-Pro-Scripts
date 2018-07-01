@@ -19,5 +19,5 @@ Including "Maintenance > Update Inventory" in the OS installation policy proved 
 ---
 
 ## Script
-- [Recon at Reboot](#)
+- [Recon at Reboot](https://github.com/dan-snelson/Jamf-Pro-Scripts/blob/master/Recon%20at%20Reboot/Recon%20at%20Reboot.sh)
 - [Client-side Functions](https://github.com/dan-snelson/Jamf-Pro-Scripts/tree/master/Client-side%20Functions)
