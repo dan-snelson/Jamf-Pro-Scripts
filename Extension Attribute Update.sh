@@ -15,7 +15,8 @@
 #		Updated to leverage an encyrpted API password
 #
 ####################################################################################################
-# Import logging functions
+# Import client-side functions
+# See: https://github.com/dan-snelson/Jamf-Pro-Scripts/tree/master/Client-side%20Functions
 source /path/to/client-side/functions.sh
 ####################################################################################################
 

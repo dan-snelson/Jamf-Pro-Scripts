@@ -49,6 +49,6 @@ For example:
 - Microsoft Outlook 2016 msupdate 16.12.18041000.pkg
 - Microsoft OneNote 2016 msupdate 16.12.18041000.pkg
 
-Add the packages to the definitions of the Microsoft Office Patch Management Software Titles.
+Add the packages to the [definitions](https://github.com/dan-snelson/Jamf-Pro-Patch-Definitions) of the Microsoft Office Patch Management Software Titles.
 
 When the patch policies run, the post-install script will leverage the "msupdate" binary to apply the updates.
