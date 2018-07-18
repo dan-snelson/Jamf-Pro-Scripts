@@ -48,32 +48,32 @@ echo "### Removing Keychain Entries ###"
 echo " "
 
 
-# Keychain Entry Name 1 to quit
+# Keychain Entry Name 1 to remove
 if [ ! -z "${entryName1}" ]; then
 	removeKeychainEntry "${entryName1}"
 fi
 
-# Keychain Entry Name 2 to quit
+# Keychain Entry Name 2 to remove
 if [ ! -z "${entryName2}" ]; then
 	removeKeychainEntry "${entryName2}"
 fi
 
-# Keychain Entry Name 3 to quit
+# Keychain Entry Name 3 to remove
 if [ ! -z "${entryName3}" ]; then
 	removeKeychainEntry "${entryName3}"
 fi
 
-# Keychain Entry Name 4 to quit
+# Keychain Entry Name 4 to remove
 if [ ! -z "${entryName4}" ]; then
 	removeKeychainEntry "${entryName4}"
 fi
 
-# Keychain Entry Name 5 to quit
+# Keychain Entry Name 5 to remove
 if [ ! -z "${entryName5}" ]; then
 	removeKeychainEntry "${entryName5}"
 fi
 
-# Keychain Entry Name 6 to quit
+# Keychain Entry Name 6 to remove
 if [ ! -z "${entryName6}" ]; then
 	removeKeychainEntry "${entryName6}"
 fi
