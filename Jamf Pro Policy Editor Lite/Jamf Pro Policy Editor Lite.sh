@@ -11,8 +11,8 @@
 #
 #	  Version 1.0, 23-Jul-2018, Dan K. Snelson
 #   		Original Version
-#				With inspiration from mm2270
-#				https://github.com/mm2270/Casper-API/blob/master/Convert-SG-Search-Search-SG.sh
+#		With inspiration from mm2270
+#		https://github.com/mm2270/Casper-API/blob/master/Convert-SG-Search-Search-SG.sh
 #
 ####################################################################################################
 
