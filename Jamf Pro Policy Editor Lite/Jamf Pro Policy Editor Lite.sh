@@ -348,7 +348,7 @@ function promptAPIpassword() {
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Select Policy to Update (Thanks, mm270!)
+# Select Policy to Update (Thanks, mm2270!)
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 function selectPolicy() {
