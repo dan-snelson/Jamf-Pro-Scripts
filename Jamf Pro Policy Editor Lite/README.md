@@ -27,6 +27,9 @@ To utilize this script, the API account must have the following privileges:
 - Because of the need to use API credentials with Create privileges, the script allows you to interactively enter the credentials so they don't need to be stored within the script. (Thanks, mm2270)
 - The script performs only minor error checking; please ensure proper API credentials or you will encounter errors
 
+### Policies
+If policies include the version number in parenthesis, for example: "Adobe Prelude CC 2018 (7.1.1)", the script will automatically parse the version number, for example: "7.1.1"; otherwise, you will be prompted for the version number.
+
 ### Packages
 The updated package must be present **before** running this script.
 
