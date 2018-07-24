@@ -9,16 +9,16 @@
 #
 # HISTORY
 #
-#	  Version 1.0, 23-Jul-2018, Dan K. Snelson
+#	Version 1.0, 23-Jul-2018, Dan K. Snelson
 #   		Original Version
 #		With inspiration from mm2270
 #		https://github.com/mm2270/Casper-API/blob/master/Convert-SG-Search-Search-SG.sh
 #
-#		Version 1.1, 24-Jul-2018, Dan K. Snelson
-#				Added lane selection
-#				Added check for valid API connection settings
-#				Added ability to correct version number
-#				Added additional logging
+#	Version 1.1, 24-Jul-2018, Dan K. Snelson
+#		Added lane selection
+#		Added check for valid API connection settings
+#		Added ability to correct version number
+#		Added additional logging
 #
 ####################################################################################################
 
