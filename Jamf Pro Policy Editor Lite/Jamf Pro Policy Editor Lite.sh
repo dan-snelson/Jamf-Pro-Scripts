@@ -14,6 +14,12 @@
 #				With inspiration from mm2270
 #				https://github.com/mm2270/Casper-API/blob/master/Convert-SG-Search-Search-SG.sh
 #
+#		Version 1.1, 24-Jul-2018, Dan K. Snelson
+#				Added lane selection
+#				Added check for valid API connection settings
+#				Added ability to correct version number
+#				Added additional logging
+#
 ####################################################################################################
 
 
@@ -74,7 +80,7 @@ function createWorkingDirectory() {
 	# Ensure Log File exists
 	if [[ ! -d ${logFile} ]]; then
 		/usr/bin/touch ${logFile}
-		echo "Log file created `date`" >> ${logFile}
+		printf "###\n#\n# Jamf Pro Policy Editor Lite\n# Log file created on:\n# `date`\n#\n###\n\n" >> ${logFile}
 	fi
 
 }
@@ -101,6 +107,68 @@ function ScriptLog() { # Re-direct logging to the log file ...
 function revealMe() {
 
 	/usr/bin/open -R "${1}"
+
+}
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Lane Selection
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+function laneSelection() {
+
+	echo "Please select a lane:
+
+[d] Development
+[s] Stage
+[p] Production
+[x] Exit"
+
+	read -n 1 -r -p "`echo $'\n> '`" lane
+	ScriptLog "Please select a lane: ${lane}"
+
+	case "${lane}" in
+
+	 d|D )
+
+		 ScriptLog "Development Lane"
+		 apiURL=""
+		 apiUser=""
+		 apiPassword=""
+		 ;;
+
+	 s|S )
+
+		 ScriptLog "Stage Lane"
+		 apiURL=""
+		 apiUser=""
+		 apiPassword=""
+		 ;;
+
+	 p|P )
+
+		 ScriptLog "Production Lane"
+		 apiURL=""
+		 apiUser=""
+		 apiPassword=""
+		 ;;
+
+	 x|X)
+
+		 ScriptLog "Exiting. Goodbye!"
+		 printf "\n\nExiting. Goodbye!\n\n"
+		 exit 0
+		 ;;
+
+	 *)
+
+			ScriptLog "ERROR: Did not recognize response: $lane; exiting."
+			printf "\nERROR: Did not recognize response: $lane; exiting."
+			exit 1
+			;;
+
+	esac
 
 }
 
@@ -142,9 +210,9 @@ function promptAPIurl() {
 			echo "
 Use this URL? ${apiURL}
 
-[y]	Yes - Use the URL presented above
-[n]	No - Enter the API URL at the next prompt
-[x]	Exit"
+[y] Yes - Use the URL presented above
+[n] No - Enter the API URL at the next prompt
+[x] Exit"
 
 			read -n 1 -r -p "`echo $'\n> '`" urlResponse
 			ScriptLog "Use this URL: ${apiURL}? ${urlResponse}"
@@ -192,8 +260,8 @@ Use this URL? ${apiURL}
 			echo "
 No API URL is specified in the script. Enter it now?
 
-[y]	Yes - Enter the URL at the next prompt
-[n]	No - Exit the script"
+[y] Yes - Enter the URL at the next prompt
+[n] No - Exit the script"
 
 			read -n 1 -r -p "`echo $'\n> '`" urlResponse
 
@@ -249,8 +317,8 @@ function promptAPIusername() {
 		ScriptLog "API username is blank; attempt to read from JAMF plist ..."
 		printf "\n\nNo API Username has been supplied. Enter it now?
 
-[y]	Yes - Enter the Username at the next prompt
-[n]	No/Exit
+[y] Yes - Enter the Username at the next prompt
+[n] No - Exit
 "
 
 		read -n 1 -r -p "`echo $'\n> '`" apiUsernameResponse
@@ -301,8 +369,8 @@ function promptAPIpassword() {
 
 		printf "\n\nNo API Password has been supplied. Enter it now?
 
-[y]	Yes - Enter the password at the next prompt
-[n]	No/Exit
+[y] Yes - Enter the password at the next prompt
+[n] No - Exit
 "
 
 		read -n 1 -r -p "`echo $'\n> '`" apiPasswordEntryResponse
@@ -348,7 +416,7 @@ function promptAPIpassword() {
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Select Policy to Update (Thanks, mm270!)
+# Select Policy to Update (Thanks, mm2270!)
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 function selectPolicy() {
@@ -365,6 +433,13 @@ function selectPolicy() {
 	# Build two lists via the API: One for Policy names; the other for their respective IDs.
 	ScriptLog "Build list of policy names via API ..."
 	policyNames=$( /usr/bin/curl -H "Accept: text/xml" -sfku "${apiUser}:${apiPassword}" "${apiURL}/JSSResource/policies" | xmllint --format - | awk -F'>|<' '/<name>/{print $3}')
+
+	# Exit if API connection settings are incorrect
+	if [[ -z ${policyNames} ]]; then
+		ScriptLog "ERROR: API connection settings incorrect; exiting"
+		printf "\n\nERROR: API connection settings incorrect; exiting\n\n"
+		exit 1
+	fi
 
 	ScriptLog "Build list of policy IDs via API ..."
 	policyIDs=$( /usr/bin/curl -H "Accept: text/xml" -sfku "${apiUser}:${apiPassword}" "${apiURL}/JSSResource/policies" | xmllint --format - | awk -F'>|<' '/<id>/{print $3}')
@@ -386,6 +461,7 @@ function selectPolicy() {
 	for i in "${!policyNamesArray[@]}"; do
 	  printf "%s\t%s\n" "[$i]" "${policyNamesArray[$i]}"
 	done
+	ScriptLog "Prompting user to select policy ..."
 
 	echo "
 	Choose the Policy to update by entering its index number:"
@@ -448,6 +524,7 @@ function downloadBackupXML() {
 
 	# Download policy XML
 	if [[ ${debug} ==  "true" ]]; then
+		ScriptLog "Debug mode enabled; displaying output of curl command to user ..."
 		/usr/bin/curl -u "$apiUser":"$apiPassword" $apiURL/JSSResource/policies/id/${policyID} -H "Accept: application/xml" -X GET -o ${backupDirectory}/policy-${policyID}.xml
 	else
 		/usr/bin/curl -s -u "$apiUser":"$apiPassword" $apiURL/JSSResource/policies/id/${policyID} -H "Accept: application/xml" -X GET -o ${backupDirectory}/policy-${policyID}.xml
@@ -459,6 +536,7 @@ function downloadBackupXML() {
 	echo "• Copying ../Backups/policy-${policyID}.xml to ../Updates/policy-${policyID}.xml"
 	ScriptLog "Copying ../Backups/policy-${policyID}.xml to ../Updates/policy-${policyID}.xml"
 	if [[ ${debug} ==  "true" ]]; then
+		ScriptLog "Debug mode enabled; displaying output of cp command to user ..."
 		/bin/cp -v ${backupDirectory}/policy-${policyID}.xml ${updatesDirectory}/policy-${policyID}.xml
 	else
 		/bin/cp ${backupDirectory}/policy-${policyID}.xml ${updatesDirectory}/policy-${policyID}.xml
@@ -509,11 +587,13 @@ function promptNewVersion() {
 	printf "• Current version: ${currentVersion}\n\n"
 	ScriptLog "Current version: ${currentVersion}"
 
+	ScriptLog "Prompting user for new version number ..."
+
 	read -p "Please specify the new version number: `echo $'\n> '`" newVersion
 	ScriptLog "New version number: ${newVersion}"
 	echo " "
 
-	read -n 1 -r -p "Are you sure you want to update version \"${currentVersion}\" to version \"${newVersion}\"? [y]es or [n]o: `echo $'\n> '`" confirmUpdate
+	read -n 1 -r -p "Are you sure you want to update version \"${currentVersion}\" to version \"${newVersion}\"? [y]es, [n]o or e[x]it: `echo $'\n> '`" confirmUpdate
 	ScriptLog "Are you sure you want to update version \"${currentVersion}\" to version \"${newVersion}\"?: ${confirmUpdate}"
 
 	case "${confirmUpdate}" in
@@ -528,7 +608,18 @@ function promptNewVersion() {
 
 	 n|N )
 
-			printf "\n\nNo; exiting\n\n"
+	 		ScriptLog "Prompt user for new version ..."
+
+			/usr/bin/clear
+
+	 		promptNewVersion
+
+			;;
+
+		x|X)
+
+			ScriptLog "Exiting. Goodbye!"
+			printf "\n\nExiting. Goodbye!\n\n"
 			exit 0
 			;;
 
@@ -562,8 +653,8 @@ function updatePolicyVersion() {
 	echo "• Done."
 
 	newpolicyName=$( /usr/bin/xmllint --xpath "/policy/general/name/text()" ${updatesDirectory}/policy-${policyID}.xml )
-	printf "• New Policy version: ${newpolicyName}\n"
-	ScriptLog "New Policy version: ${newpolicyName}"
+	printf "• Updated Policy name: ${newpolicyName}\n"
+	ScriptLog "Updated Policy name: ${newpolicyName}"
 
 }
 
@@ -606,6 +697,8 @@ function updatePackageID() {
 
 function promptUploadNewPolicy() {
 
+	unset uploadChoice
+
 	printf "\n-------------------------------------------------------------------------------------------------------\n"
 	printf "\n###\n"
 	echo "# Step 6 of 6: Upload New Policy"
@@ -622,7 +715,6 @@ function promptUploadNewPolicy() {
 	 y|Y )
 
 			uploadNewPolicy
-
 			;;
 
 	 n|N )
@@ -655,13 +747,14 @@ function uploadNewPolicy() {
 	printf "\n\n• Uploading \"${newpolicyName}\" ...\n"
 
 	if [[ ${debug} ==  "true" ]]; then
+		ScriptLog "Debug mode enabled; displaying output of curl command to user ..."
 		/usr/bin/curl -u "$apiUser":"$apiPassword" $apiURL/JSSResource/policies/id/${policyID} -H "Content-Type: application/xml" -X PUT -T ${updatesDirectory}/policy-${policyID}.xml
 	else
 		/usr/bin/curl -s -u "$apiUser":"$apiPassword" $apiURL/JSSResource/policies/id/${policyID} -H "Content-Type: application/xml" -X PUT -T ${updatesDirectory}/policy-${policyID}.xml
 	fi
 
 	ScriptLog "Uploaded ${newpolicyName} ..."
-	printf "• Uploaded \"${newpolicyName}\" ...\n\n"
+	printf "\n• Uploaded \"${newpolicyName}\" ...\n\n"
 
 }
 
@@ -684,11 +777,13 @@ function viewNewPolicy() {
 
 	printf "• Policy ID \"${policyID}\" has been updated to \"${newpolicyName}.\"\n\nTo revert Policy ID \"${policyID}\" to \"${policyName},\" use the following Terminal command:\n\n\t"
 	if [[ ${debug} ==  "true" ]]; then
+		ScriptLog "Debug mode enabled; displaying API password ..."
 		echo "/usr/bin/curl -k -u ${apiUser}:${apiPassword} ${apiURL}/JSSResource/policies/id/${policyID} -H \"Content-Type: application/xml\" -X PUT -T ${backupDirectory}/policy-${policyID}.xml ; /usr/bin/open $apiURL/policies.html?id=${policyID}"
 	else
 		echo "/usr/bin/curl -k -u ${apiUser}:API_PASSWORD_GOES_HERE ${apiURL}/JSSResource/policies/id/${policyID} -H \"Content-Type: application/xml\" -X PUT -T ${backupDirectory}/policy-${policyID}.xml"
 	fi
 
+	ScriptLog "Policy updated"
 	printf "\n\n\n***************************************** Policy Updated *****************************************\n\n\n"
 
 }
@@ -702,6 +797,8 @@ function viewNewPolicy() {
 function promptToContinue(){
 
 	unset choice
+
+	ScriptLog "Prompting user to confirm selection ..."
 
 	# Prompt user for permission to proceed
 	read -n 1 -r -p "Would you like to update this policy? [y]es or [n]o: `echo $'\n> '`" choice
@@ -753,17 +850,23 @@ function promptToContinue(){
 createWorkingDirectory
 
 echo "#####################################"
-echo "# Jamf Pro Policy Editor Lite, v1.0 #"
+echo "# Jamf Pro Policy Editor Lite, v1.1 #"
 echo "#####################################"
 echo " "
 echo "This script updates a selected policy's version number. For example, the policy for
-\"Adobe Prelude CC 2018 (7.1.1)\" would be updated to: \"Adobe Prelude CC 2018 (7.1.2).\""
+\"Adobe Prelude CC 2018 (7.1.1)\" would be updated to: \"Adobe Prelude CC 2018 (7.1.2).\"
+"
 
 if [[ ${debug} ==  "true" ]]; then
-	printf "\n\n###\n# DEBUG MODE ENABLED\n###\n\n"
+	printf "###\n# DEBUG MODE ENABLED\n###\n\n"
 	ScriptLog "DEBUG MODE ENABLED"
 	/usr/bin/open "${logFile}"
 	/usr/bin/osascript -e 'tell application "Console" to activate'
+fi
+
+if [[ -z ${apiURL} && -z ${apiUser} && -z ${apiPassword} ]]; then
+	ScriptLog "API credentials blank; prompt user to select lane ..."
+	laneSelection
 fi
 
 apiConnectionSettings
