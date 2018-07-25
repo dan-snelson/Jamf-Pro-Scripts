@@ -9,17 +9,17 @@
 #
 # HISTORY
 #
-#	  Version 1.0, 23-Jul-2018, Dan K. Snelson
-#   		Original Version
-#				With inspiration from mm2270
-#				https://github.com/mm2270/Casper-API/blob/master/Convert-SG-Search-Search-SG.sh
+#		Version 1.0, 23-Jul-2018, Dan K. Snelson
+#			Original Version
+#			With inspiration from mm2270
+#			https://github.com/mm2270/Casper-API/blob/master/Convert-SG-Search-Search-SG.sh
 #
 #		Version 1.1, 24-Jul-2018, Dan K. Snelson
-#				Added lane selection
-#				Added check for valid API connection settings
-#				Added ability to correct version number
-#				Added display of current package name when version is absent from policy name
-#				Added additional logging
+#			Added lane selection
+#			Added check for valid API connection settings
+#			Added ability to correct version number
+#			Added display of current package name when version is absent from policy name
+#			Added additional logging
 #
 ####################################################################################################
 
@@ -131,43 +131,43 @@ function laneSelection() {
 
 	case "${lane}" in
 
-	 d|D )
+		d|D )
 
-	 		ScriptLog "Development Lane"
-	 		apiURL=""
-	 		apiUser=""
-	 		apiPassword=""
-	 		;;
-
-	 s|S )
-
-	 		ScriptLog "Stage Lane"
+			ScriptLog "Development Lane"
 			apiURL=""
-	 		apiUser=""
-	 		apiPassword=""
-	 		;;
+			apiUser=""
+			apiPassword=""
+			;;
 
-	 p|P )
+		s|S )
 
-	 		ScriptLog "Production Lane"
+			ScriptLog "Stage Lane"
 			apiURL=""
-	 		apiUser=""
-	 		apiPassword=""
-	 		;;
+			apiUser=""
+			apiPassword=""
+			;;
 
-	 x|X)
+		p|P )
 
-	 		ScriptLog "Exiting. Goodbye!"
-	 		printf "\n\nExiting. Goodbye!\n\n"
-	 		exit 0
-	 		;;
+			ScriptLog "Production Lane"
+			apiURL=""
+			apiUser=""
+			apiPassword=""
+			;;
 
-	 *)
+		x|X)
 
-	 		ScriptLog "ERROR: Did not recognize response: $lane; exiting."
-	 		printf "\nERROR: Did not recognize response: $lane; exiting."
-	 		exit 1
-	 		;;
+			ScriptLog "Exiting. Goodbye!"
+			printf "\n\nExiting. Goodbye!\n\n"
+			exit 0
+			;;
+
+		*)
+
+			ScriptLog "ERROR: Did not recognize response: $lane; exiting."
+			printf "\nERROR: Did not recognize response: $lane; exiting."
+			exit 1
+			;;
 
 	esac
 
@@ -437,7 +437,7 @@ function selectPolicy() {
 
 	# Exit if API connection settings are incorrect
 	if [[ -z ${policyNames} ]]; then
-  	ScriptLog "ERROR: API connection settings incorrect; exiting"
+		ScriptLog "ERROR: API connection settings incorrect; exiting"
 		printf "\n\nERROR: API connection settings incorrect; exiting\n\n"
 		exit 1
 	fi
@@ -460,7 +460,7 @@ function selectPolicy() {
 	# Display Policy names with index labels
 	ScriptLog "Display Policy names with index labels ..."
 	for i in "${!policyNamesArray[@]}"; do
-	  printf "%s\t%s\n" "[$i]" "${policyNamesArray[$i]}"
+		printf "%s\t%s\n" "[$i]" "${policyNamesArray[$i]}"
 	done
 	ScriptLog "Prompting user to select policy ..."
 
@@ -470,9 +470,9 @@ function selectPolicy() {
 	read -r -p "`echo $'\n> '`" policyChoice
 
 	if [ "${policyChoice}" -eq "${policyChoice}" ] 2>/dev/null; then
-	  ScriptLog "Policy index: ${policyChoice}"
+		ScriptLog "Policy index: ${policyChoice}"
 	else
-	  printf "\n\nERROR: \"${policyChoice}\" is not an index number; exiting.\n\n"
+		printf "\n\nERROR: \"${policyChoice}\" is not an index number; exiting.\n\n"
 		ScriptLog "ERROR: \"${policyChoice}\" is not an index number; exiting."
 		exit 1
 	fi
@@ -618,13 +618,13 @@ function promptNewVersion() {
 
 			;;
 
-	 n|N )
+		n|N )
 
-	 		ScriptLog "Prompt user for new version ..."
+			ScriptLog "Prompt user for new version ..."
 
 			/usr/bin/clear
 
-	 		promptNewVersion
+			promptNewVersion
 
 			;;
 
@@ -635,7 +635,7 @@ function promptNewVersion() {
 			exit 0
 			;;
 
-	 *)
+		*)
 
 			printf "\n\nERROR: Did not recognize response: ${confirmUpdate}; exiting.\n\n"
 			exit 1
@@ -724,21 +724,21 @@ function promptUploadNewPolicy() {
 
 	case "${uploadChoice}" in
 
-	 y|Y )
+		y|Y )
 
 			uploadNewPolicy
 			;;
 
-	 n|N )
+		n|N )
 
-	 		ScriptLog "Upload canceled; exiting."
-	 		printf "\n\nUpload canceled; exiting.\n\n"
-	 		exit 0
+			ScriptLog "Upload canceled; exiting."
+			printf "\n\nUpload canceled; exiting.\n\n"
+			exit 0
 			;;
 
-	 *)
+		*)
 
-	 		ScriptLog "ERROR: Did not recognize response: $choice; exiting."
+			ScriptLog "ERROR: Did not recognize response: $choice; exiting."
 			printf "\nERROR: Did not recognize response: $choice; exiting."
 			exit 1
 			;;
@@ -818,9 +818,9 @@ function promptToContinue(){
 
 	case "${choice}" in
 
-	 y|Y )
+		y|Y )
 
-	 		ScriptLog "Updating policy ..."
+			ScriptLog "Updating policy ..."
 
 			downloadBackupXML				# Download and backup the XML
 
@@ -830,16 +830,16 @@ function promptToContinue(){
 
 			;;
 
-	 n|N )
+		n|N )
 
-	 		ScriptLog "Prompting user to select a different policy ..."
+			ScriptLog "Prompting user to select a different policy ..."
 			/usr/bin/clear
 			selectPolicy
 			;;
 
-	 *)
+		*)
 
-	 		ScriptLog "ERROR: Did not recognize response: $choice; exiting."
+			ScriptLog "ERROR: Did not recognize response: $choice; exiting."
 			printf "\nERROR: Did not recognize response: $choice; exiting."
 			exit 1
 			;;
