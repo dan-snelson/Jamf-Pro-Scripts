@@ -9,17 +9,17 @@
 #
 # HISTORY
 #
-#		Version 1.0, 23-Jul-2018, Dan K. Snelson
-#			Original Version
-#			With inspiration from mm2270
-#			https://github.com/mm2270/Casper-API/blob/master/Convert-SG-Search-Search-SG.sh
+#	Version 1.0, 23-Jul-2018, Dan K. Snelson
+#		Original Version
+#		With inspiration from mm2270
+#		https://github.com/mm2270/Casper-API/blob/master/Convert-SG-Search-Search-SG.sh
 #
-#		Version 1.1, 24-Jul-2018, Dan K. Snelson
-#			Added lane selection
-#			Added check for valid API connection settings
-#			Added ability to correct version number
-#			Added display of current package name when version is absent from policy name
-#			Added additional logging
+#	Version 1.1, 24-Jul-2018, Dan K. Snelson
+#		Added lane selection
+#		Added check for valid API connection settings
+#		Added ability to correct version number
+#		Added display of current package name when version is absent from policy name
+#		Added additional logging
 #
 ####################################################################################################
 
@@ -131,43 +131,43 @@ function laneSelection() {
 
 	case "${lane}" in
 
-		d|D )
+	d|D )
 
-			ScriptLog "Development Lane"
-			apiURL=""
-			apiUser=""
-			apiPassword=""
-			;;
+		ScriptLog "Development Lane"
+		apiURL=""
+		apiUser=""
+		apiPassword=""
+		;;
 
-		s|S )
+	s|S )
 
-			ScriptLog "Stage Lane"
-			apiURL=""
-			apiUser=""
-			apiPassword=""
-			;;
+		ScriptLog "Stage Lane"
+		apiURL=""
+		apiUser=""
+		apiPassword=""
+		;;
 
-		p|P )
+	p|P )
 
-			ScriptLog "Production Lane"
-			apiURL=""
-			apiUser=""
-			apiPassword=""
-			;;
+		ScriptLog "Production Lane"
+		apiURL=""
+		apiUser=""
+		apiPassword=""
+		;;
 
-		x|X)
+	x|X)
 
-			ScriptLog "Exiting. Goodbye!"
-			printf "\n\nExiting. Goodbye!\n\n"
-			exit 0
-			;;
+		ScriptLog "Exiting. Goodbye!"
+		printf "\n\nExiting. Goodbye!\n\n"
+		exit 0
+		;;
 
-		*)
+	*)
 
-			ScriptLog "ERROR: Did not recognize response: $lane; exiting."
-			printf "\nERROR: Did not recognize response: $lane; exiting."
-			exit 1
-			;;
+		ScriptLog "ERROR: Did not recognize response: $lane; exiting."
+		printf "\nERROR: Did not recognize response: $lane; exiting."
+		exit 1
+		;;
 
 	esac
 
