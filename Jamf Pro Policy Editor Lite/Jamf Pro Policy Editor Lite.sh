@@ -9,16 +9,17 @@
 #
 # HISTORY
 #
-#	Version 1.0, 23-Jul-2018, Dan K. Snelson
+#	  Version 1.0, 23-Jul-2018, Dan K. Snelson
 #   		Original Version
-#		With inspiration from mm2270
-#		https://github.com/mm2270/Casper-API/blob/master/Convert-SG-Search-Search-SG.sh
+#				With inspiration from mm2270
+#				https://github.com/mm2270/Casper-API/blob/master/Convert-SG-Search-Search-SG.sh
 #
-#	Version 1.1, 24-Jul-2018, Dan K. Snelson
-#		Added lane selection
-#		Added check for valid API connection settings
-#		Added ability to correct version number
-#		Added additional logging
+#		Version 1.1, 24-Jul-2018, Dan K. Snelson
+#				Added lane selection
+#				Added check for valid API connection settings
+#				Added ability to correct version number
+#				Added display of current package name when version is absent from policy name
+#				Added additional logging
 #
 ####################################################################################################
 
@@ -132,41 +133,41 @@ function laneSelection() {
 
 	 d|D )
 
-		 ScriptLog "Development Lane"
-		 apiURL=""
-		 apiUser=""
-		 apiPassword=""
-		 ;;
+	 		ScriptLog "Development Lane"
+	 		apiURL=""
+	 		apiUser=""
+	 		apiPassword=""
+	 		;;
 
 	 s|S )
 
-		 ScriptLog "Stage Lane"
-		 apiURL=""
-		 apiUser=""
-		 apiPassword=""
-		 ;;
+	 		ScriptLog "Stage Lane"
+			apiURL=""
+	 		apiUser=""
+	 		apiPassword=""
+	 		;;
 
 	 p|P )
 
-		 ScriptLog "Production Lane"
-		 apiURL=""
-		 apiUser=""
-		 apiPassword=""
-		 ;;
+	 		ScriptLog "Production Lane"
+			apiURL=""
+	 		apiUser=""
+	 		apiPassword=""
+	 		;;
 
 	 x|X)
 
-		 ScriptLog "Exiting. Goodbye!"
-		 printf "\n\nExiting. Goodbye!\n\n"
-		 exit 0
-		 ;;
+	 		ScriptLog "Exiting. Goodbye!"
+	 		printf "\n\nExiting. Goodbye!\n\n"
+	 		exit 0
+	 		;;
 
 	 *)
 
-			ScriptLog "ERROR: Did not recognize response: $lane; exiting."
-			printf "\nERROR: Did not recognize response: $lane; exiting."
-			exit 1
-			;;
+	 		ScriptLog "ERROR: Did not recognize response: $lane; exiting."
+	 		printf "\nERROR: Did not recognize response: $lane; exiting."
+	 		exit 1
+	 		;;
 
 	esac
 
@@ -436,7 +437,7 @@ function selectPolicy() {
 
 	# Exit if API connection settings are incorrect
 	if [[ -z ${policyNames} ]]; then
-		ScriptLog "ERROR: API connection settings incorrect; exiting"
+  	ScriptLog "ERROR: API connection settings incorrect; exiting"
 		printf "\n\nERROR: API connection settings incorrect; exiting\n\n"
 		exit 1
 	fi
@@ -575,16 +576,22 @@ function promptNewVersion() {
 	# Determine current version
 	currentVersion=$( echo $policyName | /usr/bin/awk -F"[()]" '{print $2}' )
 	if [[ -z ${currentVersion} ]]; then
+		currentPackageName=$( /usr/bin/xmllint --xpath "/policy/package_configuration/packages/package/name/text()"  ${updatesDirectory}/policy-${policyID}.xml )
 		# Prompt user for current version
-		printf "• Current version: UNKOWN\n\n"
+		printf "• Current version: UNKOWN\n"
+		printf "• Current Package Name: ${currentPackageName}\n\n"
 
 		read -p "Please specify the current version number: `echo $'\n> '`" currentVersion
 		ScriptLog "Current version number: ${currentVersion}"
-		echo " "
+		if [[ -z ${currentVersion} ]]; then
+			ScriptLog "User did not enter a current version"
+			printf "\n\n• ERROR: Current version can not be blank\n\n"
+			promptNewVersion
+		fi
 
 	fi
 
-	printf "• Current version: ${currentVersion}\n\n"
+	printf "\n• Current version: ${currentVersion}\n\n"
 	ScriptLog "Current version: ${currentVersion}"
 
 	ScriptLog "Prompting user for new version number ..."
@@ -592,6 +599,11 @@ function promptNewVersion() {
 	read -p "Please specify the new version number: `echo $'\n> '`" newVersion
 	ScriptLog "New version number: ${newVersion}"
 	echo " "
+	if [[ -z ${newVersion} ]]; then
+		ScriptLog "User did not enter a new version"
+		printf "\n\n• ERROR: New version can not be blank"
+		promptNewVersion
+	fi
 
 	read -n 1 -r -p "Are you sure you want to update version \"${currentVersion}\" to version \"${newVersion}\"? [y]es, [n]o or e[x]it: `echo $'\n> '`" confirmUpdate
 	ScriptLog "Are you sure you want to update version \"${currentVersion}\" to version \"${newVersion}\"?: ${confirmUpdate}"
