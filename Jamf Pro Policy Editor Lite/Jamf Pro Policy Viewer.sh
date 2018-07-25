@@ -108,7 +108,7 @@ function apiConnectionSettings() {
 
 	printf "\n-------------------------------------------------------------------------------------------------------"
 	printf "\n\n###\n"
-	echo "# Step 1 of 6: API Connection Settings"
+	echo "# Step 1 of 2: API Connection Settings"
 	printf "###\n"
 
 	promptAPIurl
@@ -334,7 +334,7 @@ function selectPolicy() {
 
 	printf "\n-------------------------------------------------------------------------------------------------------"
 	printf "\n\n###\n"
-	echo "# Step 2 of 6: Select Policy to View"
+	echo "# Step 2 of 2: Select Policy to View"
 	printf "###\n\n"
 
 	# Build two lists via the API: One for Policy names; the other for their respective IDs.
