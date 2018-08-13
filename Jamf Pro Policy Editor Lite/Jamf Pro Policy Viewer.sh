@@ -13,6 +13,9 @@
 #   	Original Version, based on:
 #   	https://github.com/dan-snelson/Jamf-Pro-Scripts/tree/master/Jamf%20Pro%20Policy%20Editor%20Lite
 #
+#	Version 1.1, 13-Aug-2018, Dan K. Snelson
+#			Added API Connection Validation (Thanks, BIG-RAT!)
+#
 ####################################################################################################
 
 
@@ -324,6 +327,23 @@ function promptAPIpassword() {
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Validate API Connection
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+function validateAPIConnection() {
+
+	result=$( /usr/bin/curl -w " %{http_code}" -m 10 -sku "${apiUser}":"${apiPassword}" "${apiURL}/JSSResource/computers" -X GET -H "Accept: application/xml" )
+	statusCode=$( echo $result | /usr/bin/awk '{print $NF}' )
+	if [[ $statusCode = "401" ]]; then
+	 printf "\nERROR: API Connection Settings Incorrect; exiting\n\n\n"
+	 exit 1
+	fi
+
+}
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Select Policy to Update (Thanks, mm2270!)
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -456,7 +476,7 @@ function promptToContinue(){
 /usr/bin/clear
 
 echo "#######################################"
-echo "# Jamf Pro Policy Editor Viewer, v1.0 #"
+echo "# Jamf Pro Policy Editor Viewer, v1.1 #"
 echo "#######################################"
 echo " "
 echo "[PI-005903] Jamf Pro may experience a long load time when viewing the Policies object if it contains a large number (e.g., 4000) of policy or policy_script records.
@@ -471,6 +491,8 @@ if [[ -z ${apiURL} && -z ${apiUser} && -z ${apiPassword} ]]; then
 fi
 
 apiConnectionSettings
+
+validateAPIConnection
 
 selectPolicy
 
