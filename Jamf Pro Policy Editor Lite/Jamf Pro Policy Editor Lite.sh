@@ -21,6 +21,9 @@
 #		Added display of current package name when version is absent from policy name
 #		Added additional logging
 #
+#	Version 1.2, 13-Aug-2018, Dan K. Snelson
+#		Added API Connection Validation (Thanks, BIG-RAT!)
+#
 ####################################################################################################
 
 
@@ -410,6 +413,23 @@ function promptAPIpassword() {
 		printf "\n• Using the API Password of: ${apiPassword}\n"
 	else
 		printf "\n• Using the supplied API password\n"
+	fi
+
+}
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Validate API Connection
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+function validateAPIConnection() {
+
+	result=$( /usr/bin/curl -w " %{http_code}" -m 10 -sku "${apiUser}":"${apiPassword}" "${apiURL}/JSSResource/computers" -X GET -H "Accept: application/xml" )
+	statusCode=$( echo $result | /usr/bin/awk '{print $NF}' )
+	if [[ $statusCode = "401" ]]; then
+	 printf "\nERROR: API Connection Settings Incorrect; exiting\n\n\n"
+	 exit 1
 	fi
 
 }
@@ -862,7 +882,7 @@ function promptToContinue(){
 createWorkingDirectory
 
 echo "#####################################"
-echo "# Jamf Pro Policy Editor Lite, v1.1 #"
+echo "# Jamf Pro Policy Editor Lite, v1.2 #"
 echo "#####################################"
 echo " "
 echo "This script updates a selected policy's version number. For example, the policy for
@@ -882,6 +902,8 @@ if [[ -z ${apiURL} && -z ${apiUser} && -z ${apiPassword} ]]; then
 fi
 
 apiConnectionSettings
+
+validateAPIConnection
 
 selectPolicy
 
