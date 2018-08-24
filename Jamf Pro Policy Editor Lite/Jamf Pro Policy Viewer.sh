@@ -16,6 +16,10 @@
 #	Version 1.1, 13-Aug-2018, Dan K. Snelson
 #			Added API Connection Validation (Thanks, BIG-RAT!)
 #
+#	Version 1.2, 24-Aug-2018, Dan K. Snelson
+#			Limit policy names displayed by including a search string when calling the script (see "adobe" below)
+#			./Jamf\ Pro\ Policy\ Viewer.sh adobe
+#
 ####################################################################################################
 
 
@@ -30,6 +34,10 @@
 apiURL=""
 apiUser=""
 apiPassword=""
+
+# String to match in policy name
+args=("$@")
+policyNameSearchString="${args[0]}"
 
 
 
@@ -380,7 +388,11 @@ function selectPolicy() {
 
 	# Display Policy names with index labels
 	for i in "${!policyNamesArray[@]}"; do
-	printf "%s\t%s\n" "[$i]" "${policyNamesArray[$i]}"
+		if [[ -z ${policyNameSearchString} ]]; then
+			printf "%s\t%s\n" "[$i]" "${policyNamesArray[$i]}"
+		else
+			printf "%s\t%s\n" "[$i]" "${policyNamesArray[$i]}" | /usr/bin/grep -i ${policyNameSearchString}
+		fi
 	done
 
 	echo "
@@ -476,7 +488,7 @@ function promptToContinue(){
 /usr/bin/clear
 
 echo "#######################################"
-echo "# Jamf Pro Policy Editor Viewer, v1.1 #"
+echo "# Jamf Pro Policy Editor Viewer, v1.2 #"
 echo "#######################################"
 echo " "
 echo "[PI-005903] Jamf Pro may experience a long load time when viewing the Policies object if it contains a large number (e.g., 4000) of policy or policy_script records.
