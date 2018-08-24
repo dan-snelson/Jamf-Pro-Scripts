@@ -24,6 +24,10 @@
 #	Version 1.2, 13-Aug-2018, Dan K. Snelson
 #		Added API Connection Validation (Thanks, BIG-RAT!)
 #
+#	Version 1.3, 24-Aug-2018, Dan K. Snelson
+#		Limit policy names displayed by including a search string when calling the script (see "adobe" below)
+#		./Jamf\ Pro\ Policy\ Editor\ Lite.sh adobe
+#
 ####################################################################################################
 
 
@@ -41,6 +45,10 @@ apiPassword=""
 
 # Debug mode [ true | false ]
 debug="false"
+
+# String to match in policy name
+args=("$@")
+policyNameSearchString="${args[0]}"
 
 
 
@@ -480,7 +488,12 @@ function selectPolicy() {
 	# Display Policy names with index labels
 	ScriptLog "Display Policy names with index labels ..."
 	for i in "${!policyNamesArray[@]}"; do
-		printf "%s\t%s\n" "[$i]" "${policyNamesArray[$i]}"
+		if [[ -z ${policyNameSearchString} ]]; then
+			printf "%s\t%s\n" "[$i]" "${policyNamesArray[$i]}"
+		else
+			ScriptLog "Limit to policy names containing ${policyNameSearchString} ..."
+			printf "%s\t%s\n" "[$i]" "${policyNamesArray[$i]}" | /usr/bin/grep -i ${policyNameSearchString}
+		fi
 	done
 	ScriptLog "Prompting user to select policy ..."
 
@@ -882,7 +895,7 @@ function promptToContinue(){
 createWorkingDirectory
 
 echo "#####################################"
-echo "# Jamf Pro Policy Editor Lite, v1.2 #"
+echo "# Jamf Pro Policy Editor Lite, v1.3 #"
 echo "#####################################"
 echo " "
 echo "This script updates a selected policy's version number. For example, the policy for
