@@ -39,8 +39,8 @@ targetVolume=$3
 # Variables
 ###
 
-msUpdatePause="600"				# Number of seconds for msupdate processes to wait (recommended value: 600)
-numberOfChecks="15"				# Number of times to check if the target app has been updated
+msUpdatePause="600"		# Number of seconds for msupdate processes to wait (recommended value: 600)
+numberOfChecks="15"		# Number of times to check if the target app has been updated
 delayBetweenChecks="30"		# Number of seconds to wait between tests
 
 # IT Admin constants for application path
