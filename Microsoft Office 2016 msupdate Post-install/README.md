@@ -53,4 +53,11 @@ Add the packages to the [definitions](https://github.com/dan-snelson/Jamf-Pro-Pa
 
 When the patch policies run, the post-install script will leverage the "msupdate" binary to apply the updates.
 
+<<<<<<< HEAD
+=======
+---
+
+## Microsoft Office 2019
+
+>>>>>>> 61b2228c39d8becaa8140c219e748b9bb2d58913
 8-Oct-2018: Updated for [Office 2019](https://github.com/dan-snelson/Jamf-Pro-Scripts/blob/master/Microsoft%20Office%202016%20msupdate%20Post-install/Microsoft%20Office%202019%20msupdate%20Post-install.sh)
