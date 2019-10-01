@@ -1,7 +1,7 @@
 # Your Internal Beta Test Program: Opt-in / Opt-out via Self Service
 
 ## Scripts
-- [Extension Attribute Update.sh](https://github.com/dan-snelson/Jamf-Pro-Scripts/blob/master/Extension%20Attribute%20Update.sh) 
+- [Extension Attribute Update.bash](https://github.com/dan-snelson/Jamf-Pro-Scripts/blob/master/Extension%20Attribute%20Update.bash) 
 - [Client-side Functions](https://github.com/dan-snelson/Jamf-Pro-Scripts/tree/master/Client-side%20Functions)
 
 ![Screenshot of Self Service policy](https://raw.githubusercontent.com/dan-snelson/Jamf-Pro-Scripts/master/Your%20Internal%20Beta%20Test%20Program/Screen%20Shot%202018-06-29%20at%2010.00.27%20PM.png)
@@ -44,14 +44,14 @@ In my rather frustated testing, the API read / write account needs (at least) th
 
 ## Script: Extension Attribute Update
 
-You'll need the [Client-side Functions](https://github.com/dan-snelson/Jamf-Pro-Scripts/tree/master/Client-side%20Functions) installed on each Mac and you'll need to update the "apiURL" in the [Extension Attribute Update.sh](https://github.com/dan-snelson/Jamf-Pro-Scripts/blob/master/Extension%20Attribute%20Update.sh) script which leverages parameters 4 though 7 for:
+You'll need the [Client-side Functions](https://github.com/dan-snelson/Jamf-Pro-Scripts/tree/master/Client-side%20Functions) installed on each Mac and you'll need to update the "apiURL" in the [Extension Attribute Update.bash](https://github.com/dan-snelson/Jamf-Pro-Scripts/blob/master/Extension%20Attribute%20Update.bash) script which leverages parameters 4 though 7 for:
 
 - API Username
 - API Password
 - EA Name (i.e., "Testing Level")
 - EA Value (i.e., "Gamma" or "None")
 
-![Screenshot of Extension Attribute Update.sh](https://raw.githubusercontent.com/dan-snelson/Jamf-Pro-Scripts/master/Your%20Internal%20Beta%20Test%20Program/Screen%20Shot%202018-06-30%20at%206.06.30%20PM.png)
+![Screenshot of Extension Attribute Update.bash](https://raw.githubusercontent.com/dan-snelson/Jamf-Pro-Scripts/master/Your%20Internal%20Beta%20Test%20Program/Screen%20Shot%202018-06-30%20at%206.06.30%20PM.png)
 
 ---
 
