@@ -26,12 +26,12 @@
 ### Variables
 
 apiURL="https://your.jamf-pro.server.com:8443"	# Jamf Pro URL without trailing forward slash
-apiUsername="${4}"							    # API Username
-apiPasswordEncrypted="${5}"						# API Encrypted Password
-eaName="${6}"								    # Name of Extension Attribute (i.e., "Testing Level")
-eaValue="${7}"							    	# Value for Extension Attribute (i.e., "Gamma" or "None")
-Salt="Salt goes here"							# Salt, generated from Encrypt Password
-Passphrase="Passphrase goes here"		    	# Passphrase, generated from Encrypt Password
+apiUsername="${4}"				# API Username
+apiPasswordEncrypted="${5}"			# API Encrypted Password
+eaName="${6}"					# Name of Extension Attribute (i.e., "Testing Level")
+eaValue="${7}"					# Value for Extension Attribute (i.e., "Gamma" or "None")
+Salt="Salt goes here"				# Salt, generated from Encrypt Password
+Passphrase="Passphrase goes here"		# Passphrase, generated from Encrypt Password
 computerUUID=$( /usr/sbin/system_profiler SPHardwareDataType | /usr/bin/awk '/Hardware UUID:/ { print $3 }' )
 
 ################################### No edits needed below this line ###################################
