@@ -64,7 +64,7 @@ if [[ ! -z "${apiUsername}" ]] && [[ ! -z "${apiPasswordEncrypted}" ]] && [[ ! -
 	fi
 
 	# Read current value ...
-	apiRead=$( /usr/bin/curl -H "Accept: text/xml" -sfu ${apiUsername}:${apiPassword} ${apiURL}/JSSResource/computers/udid/${computerUUID}/subset/extension_attributes | /usr/bin/xmllint --format - | /usr/bin/grep -A3 "<name>${eaName}</name>" | /usr/bin/awk -F'>|<' '/value/{print $3}' )
+	apiRead=$( /usr/bin/curl -H "Accept: text/xml" -sfu ${apiUsername}:${apiPassword} ${apiURL}/JSSResource/computers/udid/${computerUUID}/subset/extension_attributes | /usr/bin/xmllint --format - | /usr/bin/grep -A3 "<name>${eaName}</name>" | /usr/bin/awk -F'>|<' '/value/{getline;print $3}' )
 
 	/bin/echo "* Extension Attribute ${eaName}'s Current Value: ${apiRead}"
 
@@ -76,7 +76,7 @@ if [[ ! -z "${apiUsername}" ]] && [[ ! -z "${apiPasswordEncrypted}" ]] && [[ ! -
 	/bin/echo ${apiPost}
 
 	# Read the new value ...
-	apiRead=$( /usr/bin/curl -H "Accept: text/xml" -sfu ${apiUsername}:${apiPassword} ${apiURL}/JSSResource/computers/udid/${computerUUID}/subset/extension_attributes | /usr/bin/xmllint --format - | /usr/bin/grep -A3 "<name>${eaName}</name>" | /usr/bin/awk -F'>|<' '/value/{print $3}' )
+	apiRead=$( /usr/bin/curl -H "Accept: text/xml" -sfu ${apiUsername}:${apiPassword} ${apiURL}/JSSResource/computers/udid/${computerUUID}/subset/extension_attributes | /usr/bin/xmllint --format - | /usr/bin/grep -A3 "<name>${eaName}</name>" | /usr/bin/awk -F'>|<' '/value/{getline;print $3}' )
 
 	/bin/echo "* Extension Attribute ${eaName}'s New Value: ${apiRead}"
 
