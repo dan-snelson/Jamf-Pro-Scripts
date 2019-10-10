@@ -23,6 +23,8 @@ With inspiration from @mm2270 [API scripts](https://github.com/mm2270/Casper-API
 
 ### API
 To utilize this script, the API account must have the following privileges:  
+- Computers: READ
+- Packages: READ
 - Policies: CREATE, READ, UPDATE
 - Because of the need to use API credentials with Create privileges, the script allows you to interactively enter the credentials so they don't need to be stored within the script. (Thanks, mm2270)
 - The script performs only minor error checking; please ensure proper API credentials or you will encounter errors
