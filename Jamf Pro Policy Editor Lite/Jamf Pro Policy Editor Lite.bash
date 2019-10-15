@@ -42,7 +42,8 @@
 #
 ####################################################################################################
 
-# Values for API connection; if left blank, you will be prompted to interactively enter
+# Values for API connection; if left blank, you will be prompted to interactively enter.
+# If you have multiple lanes, fill-in variables in the "Lane Selection" function below.
 apiURL=""
 apiUser=""
 apiPassword=""
@@ -912,7 +913,7 @@ function promptToContinue(){
 createWorkingDirectory
 
 echo "#####################################"
-echo "# Jamf Pro Policy Editor Lite, v1.3 #"
+echo "# Jamf Pro Policy Editor Lite, v1.4 #"
 echo "#####################################"
 echo " "
 echo "This script updates a selected policy's version number. For example, the policy for
