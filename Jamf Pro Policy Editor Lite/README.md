@@ -58,3 +58,9 @@ While the script does backup a policy's XML before performing updates, please th
 ## Special Thanks
 - @mm2270
 - @BIG-RAT
+
+---
+
+## Presentation
+
+[October 2019 U of U MacAdmins](https://stream.lib.utah.edu/index.php?c=details&id=13291) meeting.
