@@ -1,7 +1,7 @@
 # Your Internal Beta Test Program: Opt-in / Opt-out via Self Service
 
 ## Scripts
-- [Extension Attribute Update.bash](https://github.com/dan-snelson/Jamf-Pro-Scripts/blob/master/Extension%20Attribute%20Update.bash) 
+- [Extension Attribute Update.bash](https://github.com/dan-snelson/Jamf-Pro-Scripts/blob/master/Extension%20Attribute%20Update.bash)
 - [Client-side Functions](https://github.com/dan-snelson/Jamf-Pro-Scripts/tree/master/Client-side%20Functions)
 
 ![Screenshot of Self Service policy](https://raw.githubusercontent.com/dan-snelson/Jamf-Pro-Scripts/master/Your%20Internal%20Beta%20Test%20Program/Screen%20Shot%202018-06-29%20at%2010.00.27%20PM.png)
@@ -68,3 +68,9 @@ Create an ongoing Self Sevice policy, scoped to "Testing: None" which includes a
 ## Opt-out Beta Test Program Self Service Policy
 
 Clone your Opt-in policy and change EA Value to "None" to unset a computer's Testing Level; scope to your testing groups.
+
+---
+
+## Presentation: JNUC 2019
+
+[JNUC 2019 Your Internal Beta Test Program — Opt-in / Opt-out via Self Service](#).
