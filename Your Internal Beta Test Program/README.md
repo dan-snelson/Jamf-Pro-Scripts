@@ -73,4 +73,4 @@ Clone your Opt-in policy and change EA Value to "None" to unset a computer's Tes
 
 ## Presentation: JNUC 2019
 
-[JNUC 2019 Your Internal Beta Test Program — Opt-in / Opt-out via Self Service](https://github.com/dan-snelson/Jamf-Pro-Scripts/raw/master/Your%20Internal%20Beta%20Test%20Program/JNUC%202019%20Your%20Internal%20Beta%20Test%20Program%20—%20Opt-in%20Opt-out%20via%20Self%20Service.zip).
+[JNUC 2019 Your Internal Beta Test Program — Opt-in / Opt-out via Self Service](https://1drv.ms/u/s!Ai8L0BNx27XzmGHl0LN7WW4HaG9w?e=8eVRaJ).
