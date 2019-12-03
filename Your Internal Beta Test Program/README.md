@@ -73,5 +73,5 @@ Clone your Opt-in policy and change EA Value to "None" to unset a computer's Tes
 
 ## Presentation: JNUC 2019
 
-- [YouTube](https://www.youtube.com/watch?v=AhYPVvO7LwM&list=PLlxHm_Px-Ie2FPGhbtr_qj8P6Ww61Z44c&index=60&t=0s)
+- [YouTube](https://www.youtube.com/watch?v=AhYPVvO7LwM)
 - [Keynote](https://1drv.ms/u/s!Ai8L0BNx27XzmGHl0LN7WW4HaG9w?e=8eVRaJ)
