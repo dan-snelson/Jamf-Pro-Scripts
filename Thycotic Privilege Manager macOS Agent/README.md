@@ -3,8 +3,8 @@
 While troubleshooting new installations of the macOS Thycotic Privilege Manager agent, I found myself frequently having to leverage `agentUtil.sh` as `root` to see exactly which policies had been applied before realizing I had neglected to add the new test machine to my testing Resource group.
 
 Bash Scripts:
-* [Jamf Pro Policy Script](https://github.com/dan-snelson/Jamf-Pro-Scripts/blob/master/Thycotic%20Privilege%20Manager%20macOS%20Agent/Thycotic%20Privilege%20Manager%20macOS%20Agent%20Information.bash)
-* [Jamf Pro Extension Attribute](https://github.com/dan-snelson/Jamf-Pro-Scripts/blob/master/Thycotic%20Privilege%20Manager%20macOS%20Agent/Thycotic%20Machine%20ID.bash)
+* [Jamf Pro Policy Script](Thycotic%20Privilege%20Manager%20macOS%20Agent%20Information.bash)
+* [Jamf Pro Extension Attribute](Thycotic%20Machine%20ID.bash)
 
 ---
 
