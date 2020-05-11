@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 ####################################################################################################
 # Extension Attribute to determine the Thycotic Machine ID
@@ -8,7 +8,7 @@
 result="Not Installed"
 
 # If the thycotic binary is installed, return the version
-if [[ -d "/usr/local/thycotic" ]] ; then
+if [ -d "/usr/local/thycotic" ] ; then
 
 	result=$( /usr/bin/defaults read /Library/Application\ Support/Thycotic/Agent/acs-config.plist machine_id )
 
