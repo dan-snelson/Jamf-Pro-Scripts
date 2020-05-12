@@ -463,7 +463,7 @@ generateHTML "<hr />"
 
 
 ##
-Close HTML document
+# Close HTML document
 ##
 
 echo "Close HTML document ..."
