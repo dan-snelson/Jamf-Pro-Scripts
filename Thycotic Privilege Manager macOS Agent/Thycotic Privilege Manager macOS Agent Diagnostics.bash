@@ -1,9 +1,12 @@
 #!/bin/bash
 ####################################################################################################
 #
-# Thycotic Privilege Manager macOS Agent Diagnostics for your Help Desk
+#	Thycotic Privilege Manager macOS Agent Diagnostics for your Help Desk
 #
 #	Purpose: Diagnose the Thycotic Privilege Manager macOS Agent
+#
+#	Jamf Pro Script Parameter 4: Number of Kickstart Checks
+#	Jamf Pro Script Parameter 5: Thycotic Agent Install Code
 #
 ####################################################################################################
 #
@@ -31,39 +34,40 @@ fi
 
 
 
-###
-# Variables
-###
+####################################################################################################
+#
+# Define the Variables
+#
+####################################################################################################
 
 thycoticURL="https://company.privilegemanagercloud.com/Tms/" # Include trailing forward slash
 privilegeManagerURL="${thycoticURL}PrivilegeManager/#"
 agentRegistrationURL="${thycoticURL}Agent/AgentRegistration4.svc"
-jamfProURL=$( /usr/bin/defaults read "/Library/Preferences/com.jamfsoftware.jamf.plist" jss_url | /usr/bin/sed 's|/$||'  )
+jamfProURL=$( /usr/bin/defaults read "/Library/Preferences/com.jamfsoftware.jamf.plist" jss_url | /usr/bin/sed 's|/$||'	)
 case $jamfProURL in
 	*"beta"*	)	jamfProAdminURL="https://jamfpro-beta.company.com" ;;
-	*					)	jamfProAdminURL="https://jamfpro.company.com" ;;
+	*			)	jamfProAdminURL="https://jamfpro.company.com" ;;
 esac
 
 ############################## No edits needed below this line ##############################
 
 # Number of times to kickstart the agent (defaults to 3)
 kickstartChecks="${4}"
-# Check for a specified value for Allowed Deferrals (Parameter 4)
+# Check for a specified value for Kickstart Checks (Parameter 4)
 if [ "${kickstartChecks}" = "" ]; then
 	# "Parameter 4 is blank; using \"3\" as the number of times to kickstart the agent."
-  kickstartChecks="3"
+	kickstartChecks="3"
 else
 	kickstartChecks="${4}"
 fi
 
-# Agent Install Code (defaults to AHW1M3P98D64)
+# Agent Install Code (exit if blank)
 agentInstallCode="${5}"
 # Check for a specified value for Agent Install Code (Parameter 5)
 if [ "${agentInstallCode}" = "" ]; then
-	# "Parameter 5 is blank; using \"AHW1M3P98D64\" as the Agent Install Code."
-  agentInstallCode="JENNY86753099"
-else
-	agentInstallCode="${5}"
+	# Parameter 5 is blank; exit with error
+	echo "Parameter 5 is blank; exit with error."
+	exit 1
 fi
 
 loggedInUser=$( /usr/bin/stat -f %Su "/dev/console" )
@@ -102,7 +106,7 @@ generateHTML() {
 <html>
 <head>
 	<title>Thycotic Privilege Manager macOS Agent Information for $loggedInUser, S/N $serialNumber, Machine ID $thycoticMachineID</title>
-  <base target=\"_blank\">
+	<base target=\"_blank\">
 	<style>
 		body {
 			font-family: Georgia, serif;
@@ -114,7 +118,7 @@ generateHTML() {
 			padding: 4px;
 		}
 		a:hover {
-  		background-color: #DDD;
+			background-color: #DDD;
 			padding: 4px;
 		}
 		.warning {
@@ -479,4 +483,4 @@ fi
 
 echo "Results saved to: ${outputFileName}"
 
-exit 0		## Success
+exit 0

@@ -60,13 +60,13 @@ else
 		unset testURL
 
 		case ${2} in
-			"xml"				)	testURL=$( /usr/bin/curl -sIX GET "${1}" | /usr/bin/head -n 1 ) ;;
+			"xml"		)	testURL=$( /usr/bin/curl -sIX GET "${1}" | /usr/bin/head -n 1 ) ;;
 			"html" | *	)	testURL=$( /usr/bin/curl -Is "${1}" | /usr/bin/head -n 1 ) ;;
 		esac
 
 		case ${testURL} in
-			*"200"*	)	result="${result}; Passed URL" ;; # *"200"*	)	result="${result}; Passed URL ${1}" ;;
-			*				)	result="${result}; FAILED URL" ;; # *				)	result="${result}; FAILED URL ${1}" ;;
+			*"200"*		)	result="${result}; PASSED URL" ;;
+			*			)	result="${result}; FAILED URL" ;;
 		esac
 
 	}
@@ -80,8 +80,8 @@ else
 		agentUtil "updateclientitems"
 
 		case ${agentUtilAction} in
-			*"Updating client items"*	) result="${result}; Passed Updating Client Items" ;;
-			*"Unable to connect"*			) result="${result}; FAILED Updating Client Items" ;;
+			*"Updating client items"*	) result="${result}; PASSED Updating Client Items" ;;
+			*"Unable to connect"*		) result="${result}; FAILED Updating Client Items" ;;
 		esac
 
 	}

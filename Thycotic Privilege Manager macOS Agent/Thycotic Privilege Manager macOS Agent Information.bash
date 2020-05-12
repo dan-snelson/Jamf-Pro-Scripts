@@ -28,12 +28,14 @@ fi
 
 
 
-###
-# Variables
-###
+####################################################################################################
+#
+# Define the Variables
+#
+####################################################################################################
 
 privilegeManagerURL="https://companyname.privilegemanagercloud.com/Tms/PrivilegeManager/#"
-jamfProURL=$( /usr/bin/defaults read "/Library/Preferences/com.jamfsoftware.jamf.plist" jss_url | /usr/bin/sed 's|/$||'  )
+jamfProURL=$( /usr/bin/defaults read "/Library/Preferences/com.jamfsoftware.jamf.plist" jss_url | /usr/bin/sed 's|/$||' )
 if [[ ${jamfProURL} == *"stage"* ]]; then
 	jamfProAdminURL="https://jamfpro-stage.companyname.com"
 else
