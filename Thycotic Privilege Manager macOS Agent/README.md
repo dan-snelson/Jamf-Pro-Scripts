@@ -1,7 +1,7 @@
 # Thycotic Privilege Manager macOS Agent
 ### Description
 
-Queries the macOS Thycotic Management Agent for various settings, saves the results to the user's Desktop as an HTML file, which is then opened in Safari.
+Queries the macOS Thycotic Privilege Manager Agent for various settings, saves the results to the user's Desktop as an HTML file, which is then opened in Safari.
 
 If the `testAgentConnection` function results in a failure, the `kickstartAgent` function executes `settmsserver -serverUri ${thycoticURL} -installCode ${agentInstallCode}` in an attempt to resolve the connection failure.
 
@@ -28,7 +28,7 @@ If the `testAgentConnection` function results in a failure, the `kickstartAgent`
 		* Jamf Pro Script Parameter 4: Number of Kickstart Checks
 		* Jamf Pro Script Parameter 5: Thycotic Agent Install Code
 
-* [Thycotic Management Agent Kickstart](Thycotic%20Management%20Agent%20Kickstart.sh)
+* [Thycotic Privilege Manager Agent Kickstart](Thycotic%20Privilege%20Manager%20Agent%20Kickstart.sh)
 	* Simplified version of _Thycotic Privilege Manager macOS Agent Diagnostics_
 	* No HTML output
 	* Used as a remediation for _Thycotic Health Check_ Extension Attribute
@@ -36,9 +36,9 @@ If the `testAgentConnection` function results in a failure, the `kickstartAgent`
 ---
 
 ### Jamf Pro Extension Attributes
-* [Thycotic Machine ID](Thycotic%20Machine%20ID.sh)
-	* Returns Thycotic Machine ID GUID
-* [Thycotic Health Check](Thycotic%20Health%20Check.sh)
+* [Thycotic Privilege Manager Machine ID](Thycotic%20Privilege%20Manager%20Machine%20ID.sh)
+	* Returns the Thycotic Privilege Manager Machine ID GUID
+* [Thycotic Privilege Manager Health Check](Thycotic%20Privilege%20Manager%20Health%20Check.sh)
 	* Validates access to `${thycoticURL}PrivilegeManager/#`
 	* Validated access to `${thycoticURL}Agent/AgentRegistration4.svc`
 	* Attempts to `updateclientitems`
