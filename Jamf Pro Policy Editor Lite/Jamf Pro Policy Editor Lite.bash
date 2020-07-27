@@ -32,6 +32,9 @@
 #		Enabled debug mode by default
 #		Added more robust debug logging for failed API connections
 #
+#	Version 1.4.1, 27-Jul-2020, Dan K. Snelson
+#		Updated URL open command for ZSH
+#
 ####################################################################################################
 
 
@@ -836,12 +839,12 @@ function viewNewPolicy() {
 
 	ScriptLog "Launching browser to view \"${newpolicyName}\" policy ..."
 	printf "\n• Launching browser to view \"${newpolicyName}\" policy ...\n"
-	/usr/bin/open $apiURL/policies.html?id=${policyID}
+	/usr/bin/open "$apiURL/policies.html?id=${policyID}"
 
 	printf "• Policy ID \"${policyID}\" has been updated to \"${newpolicyName}.\"\n\nTo revert Policy ID \"${policyID}\" to \"${policyName},\" use the following Terminal command:\n\n\t"
 	if [[ ${debug} ==  "true" ]]; then
 		ScriptLog "Debug mode enabled; displaying API password ..."
-		echo "/usr/bin/curl -k -u ${apiUser}:${apiPassword} ${apiURL}/JSSResource/policies/id/${policyID} -H \"Content-Type: application/xml\" -X PUT -T ${backupDirectory}/policy-${policyID}.xml ; /usr/bin/open $apiURL/policies.html?id=${policyID}"
+		echo "/usr/bin/curl -k -u ${apiUser}:${apiPassword} ${apiURL}/JSSResource/policies/id/${policyID} -H \"Content-Type: application/xml\" -X PUT -T ${backupDirectory}/policy-${policyID}.xml ; /usr/bin/open '$apiURL/policies.html?id=${policyID}'"
 	else
 		echo "/usr/bin/curl -k -u ${apiUser}:API_PASSWORD_GOES_HERE ${apiURL}/JSSResource/policies/id/${policyID} -H \"Content-Type: application/xml\" -X PUT -T ${backupDirectory}/policy-${policyID}.xml"
 	fi
