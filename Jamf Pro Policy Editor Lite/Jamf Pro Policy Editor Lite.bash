@@ -915,9 +915,9 @@ function promptToContinue(){
 
 createWorkingDirectory
 
-echo "#####################################"
-echo "# Jamf Pro Policy Editor Lite, v1.4 #"
-echo "#####################################"
+echo "#######################################"
+echo "# Jamf Pro Policy Editor Lite, v1.4.1 #"
+echo "#######################################"
 echo " "
 echo "This script updates a selected policy's version number. For example, the policy for
 \"Adobe Prelude CC 2018 (7.1.1)\" would be updated to: \"Adobe Prelude CC 2018 (7.1.2).\"
