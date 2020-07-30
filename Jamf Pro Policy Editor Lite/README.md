@@ -42,7 +42,7 @@ The updated package must be present **before** running this script.
 This script was designed to be run _interactively_ in Terminal and allows you to use the API (along with valid API credentials) to update a policy's version number.  
 
 This script uses some **BASH** specific items; please first make the script executable:  
-`chmod +x /path/to/Jamf\ Pro\ Policy\ Editor\ Lite.sh`  
+`chmod +x /path/to/Jamf\ Pro\ Policy\ Editor\ Lite.bash`  
 
 To use the script:
 `/path/to/path/to/Jamf\ Pro\ Policy\ Editor\ Lite.sh`  
