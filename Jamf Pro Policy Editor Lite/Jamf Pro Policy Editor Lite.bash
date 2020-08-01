@@ -5,6 +5,8 @@
 #
 #   Jamf Pro Policy Editor Lite: Edit a policy's version number via the API
 #
+#	https://github.com/dan-snelson/Jamf-Pro-Scripts/
+#
 ####################################################################################################
 #
 # HISTORY
@@ -25,8 +27,8 @@
 #		Added API Connection Validation (Thanks, BIG-RAT!)
 #
 #	Version 1.3, 24-Aug-2018, Dan K. Snelson
-#		Limit policy names displayed by including a search string when calling the script (see "adobe" below)
-#		./Jamf\ Pro\ Policy\ Editor\ Lite.sh adobe
+#		Limit policy names displayed by including a search string when calling the script (see "foundry" below)
+#		./Jamf\ Pro\ Policy\ Editor\ Lite.sh foundry
 #
 #	Version 1.4, 10-Oct-2019, Dan K. Snelson
 #		Enabled debug mode by default
@@ -34,6 +36,11 @@
 #
 #	Version 1.4.1, 27-Jul-2020, Dan K. Snelson
 #		Updated URL open command for ZSH
+#
+#	Version 1.4.2, 01-Aug-2020, Dan K. Snelson
+#		Greatly enhanced error-checking for missing packages
+#		Row highlighting in policy list
+#		General updates and performance improvements
 #
 ####################################################################################################
 
@@ -45,8 +52,10 @@
 #
 ####################################################################################################
 
+scriptVersion="1.4.2"
+
 # Values for API connection; if left blank, you will be prompted to interactively enter.
-# If you have multiple lanes, fill-in variables in the "Lane Selection" function below.
+# If you have multiple lanes, fill-in variables in the "laneSelection" function below.
 apiURL=""
 apiUser=""
 apiPassword=""
@@ -54,13 +63,22 @@ apiPassword=""
 # Debug mode [ true | false ]
 debug="true"
 
+# ------------------------------ No edits required below this line --------------------------------
+
 # String to match in policy name
 args=("$@")
 policyNameSearchString="${args[0]}"
 
+# Divider Line
+dividerLine="\n--------------------------------------------------------------------------------------------------------|\n"
 
-
-# ------------------------------ No edits required below this line --------------------------------
+# Any Colour You Like
+red=$'\e[1;31m'
+green=$'\e[1;32m'
+yellow=$'\e[1;33m'
+blue=$'\e[1;34m'
+cyan=$'\e[1;36m'
+resetColor=$'\e[0m'
 
 
 
@@ -77,10 +95,10 @@ policyNameSearchString="${args[0]}"
 function createWorkingDirectory() {
 
 	# Currently logged-in user
-	loggedInUser=$( /usr/bin/stat -f%Su /dev/console )
+	loggedInUser=$( /bin/echo "show State:/Users/ConsoleUser" | /usr/sbin/scutil | /usr/bin/awk '/Name :/ && ! /loginwindow/ { print $3 }' )
 
 	# Time stamp for log file
-	timestamp=$( /bin/date '+%Y-%m-%d-%H%M%S' )
+	timestamp=$( date '+%Y-%m-%d-%H%M%S' )
 
 	# Working Directory
 	workingDirectory="/Users/${loggedInUser}/Documents/Jamf_Pro_Policy_Editor_Lite"
@@ -89,18 +107,18 @@ function createWorkingDirectory() {
 
 	# Ensure Working Directory exists
 	if [[ ! -d ${workingDirectory} ]]; then
-		/bin/mkdir -p ${workingDirectory}
+		mkdir -p ${workingDirectory}
 	fi
 
 	# Ensure Log Directory exists
 	if [[ ! -d ${logDirectory} ]]; then
-		/bin/mkdir -p ${logDirectory}
+		mkdir -p ${logDirectory}
 	fi
 
 	# Ensure Log File exists
 	if [[ ! -d ${logFile} ]]; then
-		/usr/bin/touch ${logFile}
-		printf "###\n#\n# Jamf Pro Policy Editor Lite\n# Log file created on:\n# `date`\n#\n###\n\n" >> ${logFile}
+		touch ${logFile}
+		printf "###\n#\n# Jamf Pro Policy Editor Lite\n# Version: ${scriptVersion}\n#\n# Log file created on:\n# ${timestamp}\n#\n# Working Directory Filesize and Location\n# `du -sh ${workingDirectory}`\n#\n###\n\n" >> ${logFile}
 	fi
 
 }
@@ -114,7 +132,7 @@ function createWorkingDirectory() {
 function ScriptLog() { # Re-direct logging to the log file ...
 
 	NOW=`date +%Y-%m-%d\ %H:%M:%S`
-	/bin/echo "${NOW}" " ${1}" >> "${logFile}"
+	echo "${NOW}" " ${1}" >> "${logFile}"
 
 }
 
@@ -126,7 +144,7 @@ function ScriptLog() { # Re-direct logging to the log file ...
 
 function revealMe() {
 
-	/usr/bin/open -R "${1}"
+	open -R "${1}"
 
 }
 
@@ -145,8 +163,13 @@ function laneSelection() {
 [p] Production
 [x] Exit"
 
+	SECONDS="0"
+
 	read -n 1 -r -p "`echo $'\n> '`" lane
 	ScriptLog "Please select a lane: ${lane}"
+
+	ScriptLog "Elapsed Time: ${SECONDS} seconds"
+	ScriptLog ""
 
 	case "${lane}" in
 
@@ -183,8 +206,8 @@ function laneSelection() {
 
 	*)
 
-		ScriptLog "ERROR: Did not recognize response: $lane; exiting."
-		printf "\nERROR: Did not recognize response: $lane; exiting."
+		ScriptLog "ERROR: Did not recognize response: ${lane}; exiting."
+		printf "\n${red}ERROR:${resetColor} Did not recognize response: ${lane}; exiting."
 		exit 1
 		;;
 
@@ -200,16 +223,21 @@ function laneSelection() {
 
 function apiConnectionSettings() {
 
-	printf "\n-------------------------------------------------------------------------------------------------------"
-	printf "\n\n###\n"
+	printf "\n${dividerLine}"
+	printf "\n###\n"
 	echo "# Step 1 of 6: API Connection Settings"
 	printf "###\n"
+
+	SECONDS="0"
 
 	promptAPIurl
 
 	promptAPIusername
 
 	promptAPIpassword
+
+	ScriptLog "Elapsed Time: ${SECONDS} seconds"
+	ScriptLog ""
 
 }
 
@@ -221,9 +249,11 @@ function apiConnectionSettings() {
 
 function promptAPIurl() {
 
-	if [[ -z "$apiURL" ]]; then
+	SECONDS="0"
+
+	if [[ -z "${apiURL}" ]]; then
 		ScriptLog "API URL is blank; attempt to read from JAMF plist ..."
-		# Read the API URL from the JAMF preferences
+		# read the API URL from the JAMF preferences
 		if [[ -e "/Library/Preferences/com.jamfsoftware.jamf.plist" ]]; then
 			ScriptLog "Found JAMF plist; read its URL ..."
 			apiURL=$( defaults read "/Library/Preferences/com.jamfsoftware.jamf.plist" jss_url | sed 's|/$||' )
@@ -237,18 +267,18 @@ Use this URL? ${apiURL}
 			read -n 1 -r -p "`echo $'\n> '`" urlResponse
 			ScriptLog "Use this URL: ${apiURL}? ${urlResponse}"
 
-			case "$urlResponse" in
+			case "${urlResponse}" in
 
 				y|Y)
 
-					apiURL="$apiURL"
+					apiURL="${apiURL}"
 					;;
 
 				n|N)
 
 					printf "\n\nEnter the API URL:"
 					read -r -p "`echo $'\n> '`" newURLResponse
-					if [[ -z "$newURLResponse" ]]; then
+					if [[ -z "${newURLResponse}" ]]; then
 						ScriptLog "No API URL provided; exiting."
 						printf "\nNo API URL provided; exiting.\n\n"
 						exit 0
@@ -267,7 +297,7 @@ Use this URL? ${apiURL}
 				*)
 
 					ScriptLog "ERROR: Invalid response: ${urlResponse}; exiting."
-					printf "\n\nERROR: Invalid response; exiting.\n\n"
+					printf "\n\n${red}ERROR:${resetColor} Invalid response; exiting.\n\n"
 					exit 1
 					;;
 
@@ -285,18 +315,18 @@ No API URL is specified in the script. Enter it now?
 
 			read -n 1 -r -p "`echo $'\n> '`" urlResponse
 
-			case "$urlResponse" in
+			case "${urlResponse}" in
 
 				y|Y)
 
 					printf "\n\nEnter the API URL:"
 					read -r -p "`echo $'\n> '`"  userURLResponse
-					if [[ -z "$userURLResponse" ]]; then
+					if [[ -z "${userURLResponse}" ]]; then
 						ScriptLog "No API URL provided; exiting."
 						printf "\nNo API URL provided; exiting.\n\n"
 						exit 0
 					fi
-					apiURL="$userURLResponse"
+					apiURL="${userURLResponse}"
 					ScriptLog "API URL: ${apiURL}"
 					;;
 
@@ -310,7 +340,7 @@ No API URL is specified in the script. Enter it now?
 				*)
 
 					ScriptLog "ERROR: Invalid response ${urlResponse}; exiting."
-					printf "\n\nERROR: Invalid response; exiting.\n\n"
+					printf "\n\n${red}ERROR:${resetColor} Invalid response; exiting.\n\n"
 					exit 1
 					;;
 
@@ -318,10 +348,13 @@ No API URL is specified in the script. Enter it now?
 		fi
 	fi
 
-	apiURL=$( echo "$apiURL" | sed 's|/$||' )
+	apiURL=$( echo "${apiURL}" | sed 's|/$||' )
 
 	ScriptLog "Using the API URL of: ${apiURL}"
-	printf "\n• Using the API URL of: ${apiURL}"
+	printf "\n\n• Using the API URL of: ${apiURL}"
+
+	ScriptLog "Elapsed Time: ${SECONDS} seconds"
+	ScriptLog ""
 
 }
 
@@ -333,8 +366,10 @@ No API URL is specified in the script. Enter it now?
 
 function promptAPIusername() {
 
+	SECONDS="0"
+
 	if [[ -z "${apiUser}" ]]; then
-		ScriptLog "API username is blank; attempt to read from JAMF plist ..."
+		ScriptLog "No API Username has been supplied. Enter it now?"
 		printf "\n\nNo API Username has been supplied. Enter it now?
 
 [y] Yes - Enter the Username at the next prompt
@@ -343,7 +378,7 @@ function promptAPIusername() {
 
 		read -n 1 -r -p "`echo $'\n> '`" apiUsernameResponse
 
-		case "$apiUsernameResponse" in
+		case "${apiUsernameResponse}" in
 
 			y|Y)
 
@@ -358,13 +393,15 @@ function promptAPIusername() {
 
 			n|N)
 
+				ScriptLog "Exiting. Goodbye!"
 				printf "\n\nExiting. Goodbye!\n\n"
 				exit 0
 				;;
 
 			*)
 
-				printf "\n\nInvalid response! Please try again."
+				printf "\n\n${red}ERROR:${resetColor} Invalid response! Please try again."
+				ScriptLog "ERROR: Invalid response! Please try again."
 				promptAPIusername
 				;;
 
@@ -374,6 +411,9 @@ function promptAPIusername() {
 
 	ScriptLog "Using the API Username of: ${apiUser}"
 	printf "\n• Using the API Username of: ${apiUser}"
+
+	ScriptLog "Elapsed Time: ${SECONDS} seconds"
+	ScriptLog ""
 
 }
 
@@ -385,8 +425,10 @@ function promptAPIusername() {
 
 function promptAPIpassword() {
 
-	if [[ -z "${apiPassword}" ]]; then
+	SECONDS="0"
 
+	if [[ -z "${apiPassword}" ]]; then
+		ScriptLog "No API Password has been supplied. Enter it now?"
 		printf "\n\nNo API Password has been supplied. Enter it now?
 
 [y] Yes - Enter the password at the next prompt
@@ -395,13 +437,14 @@ function promptAPIpassword() {
 
 		read -n 1 -r -p "`echo $'\n> '`" apiPasswordEntryResponse
 
-		case "$apiPasswordEntryResponse" in
+		case "${apiPasswordEntryResponse}" in
 
 			y|Y)
 
 				printf "\n\nAPI Password:\n>"
 				read -s apiPasswordEntry
 				if [[ -z "${apiPasswordEntry}" ]]; then
+					ScriptLog "No API Password provided; exiting."
 					printf "\nNo API Password provided; exiting.\n\n"
 					exit 0
 				fi
@@ -410,13 +453,15 @@ function promptAPIpassword() {
 
 			n|N)
 
+				ScriptLog "Exiting. Goodbye!"
 				printf "\n\nExiting. Goodbye!\n\n"
 				exit 0
 				;;
 
 			*)
 
-				printf "\n\nInvalid response! Please try again."
+				printf "\n\n${red}ERROR:${resetColor} Invalid response! Please try again."
+				ScriptLog "ERROR: Invalid response! Please try again."
 				promptAPIpassword
 				;;
 
@@ -425,11 +470,16 @@ function promptAPIpassword() {
 	fi
 
 	if [[ ${debug} ==  "true" ]]; then
+		ScriptLog "DEBUG MODE ENABLED: Displaying API Password ..."
 		ScriptLog "Using the API Password of: ${apiPassword}"
+		printf "\n• ${green}DEBUG MODE ENABLED:${resetColor} Displaying API Password ..."
 		printf "\n• Using the API Password of: ${apiPassword}\n"
 	else
 		printf "\n• Using the supplied API password\n"
 	fi
+
+	ScriptLog "Elapsed Time: ${SECONDS} seconds"
+	ScriptLog ""
 
 }
 
@@ -441,11 +491,18 @@ function promptAPIpassword() {
 
 function validateAPIConnection() {
 
-	if [[ ${debug} ==  "true" ]]; then
-		result=$( /usr/bin/curl -w " %{http_code}" -m 10 -u "${apiUser}":"${apiPassword}" "${apiURL}/JSSResource/computers" -X GET -H "Accept: application/xml" )
-		statusCode=$( echo ${result} | /usr/bin/awk '{print $NF}' )
+	SECONDS="0"
+
+	if [[ ${debug} == "true" ]]; then
+		ScriptLog "DEBUG MODE ENABLED: Displaying curl command output ..."
+		printf "• ${green}DEBUG MODE ENABLED:${resetColor} Displaying curl command output ...\n"
+		result=$( curl -w " %{http_code}" -m 10 -u "${apiUser}":"${apiPassword}" "${apiURL}/JSSResource/computers" -X GET -H "Accept: application/xml" )
+		statusCode=$( echo ${result} | awk '{print $NF}' )
 		if [[ ${statusCode} = "401" ]]; then
-	 		printf "\nERROR: API Connection Settings Incorrect; exiting.\n\nConsider trying again with your administrative Jamf Pro credentials.\n\nIf that works, double-check the permissions for the \"${apiUser}\" Jamf Pro account.\n\n"
+			ScriptLog "DEBUG MODE ENABLED: Displaying API Connection Settings ..."
+			ScriptLog "ERROR: API Connection Settings Incorrect; exiting."
+			printf "\n${green}DEBUG MODE ENABLED:${resetColor} Displaying API Connection Settings ...\n"
+	 		printf "\n${red}ERROR:${resetColor} API Connection Settings Incorrect; exiting.\n\nConsider trying again with your administrative Jamf Pro credentials.\n\nIf that works, double-check the permissions for the \"${apiUser}\" Jamf Pro account.\n\n"
 			echo "API URL:      ${apiURL}"
 			echo "API User:     ${apiUser}"
 			echo "API Password: ${apiPassword}"
@@ -453,14 +510,18 @@ function validateAPIConnection() {
 	 		exit 1
 		fi
 	else
-		result=$( /usr/bin/curl -w " %{http_code}" -m 10 -sku "${apiUser}":"${apiPassword}" "${apiURL}/JSSResource/computers" -X GET -H "Accept: application/xml" )
-		statusCode=$( echo ${result} | /usr/bin/awk '{print $NF}' )
+		result=$( curl -w " %{http_code}" -m 10 -sku "${apiUser}":"${apiPassword}" "${apiURL}/JSSResource/computers" -X GET -H "Accept: application/xml" )
+		statusCode=$( echo ${result} | awk '{print $NF}' )
 		if [[ ${statusCode} = "401" ]]; then
-	 		printf "\nERROR: API Connection Settings Incorrect; exiting\n\n"
+			ScriptLog "ERROR: API Connection Settings Incorrect; exiting."
+	 		printf "\n${red}ERROR:${resetColor} API Connection Settings Incorrect; exiting\n\n"
 			echo "Status Code: ${statusCode}"
 	 		exit 1
 		fi
 	fi
+
+	ScriptLog "Elapsed Time: ${SECONDS} seconds"
+	ScriptLog ""
 }
 
 
@@ -473,61 +534,83 @@ function selectPolicy() {
 
 	# Reset Variables
 	ScriptLog "Reset variables ..."
-	unset policyNames policyIDs policyName policyNamesArray policyID policyIDsArray policyChoice
+	unset policyNames policyIDs policyName policyNamesArray policyID policyIDsArray policyChoice #SECONDS
 
-	printf "\n-------------------------------------------------------------------------------------------------------"
-	printf "\n\n###\n"
+	printf "${dividerLine}"
+	printf "\n###\n"
 	echo "# Step 2 of 6: Select Policy to Update"
+	if [[ ! -z ${policyNameSearchString} ]]; then
+		echo "# Limit to policy names containing \"${policyNameSearchString}\""
+	fi
 	printf "###\n\n"
 
 	# Build two lists via the API: One for Policy names; the other for their respective IDs.
 	ScriptLog "Build list of policy names via API ..."
-	policyNames=$( /usr/bin/curl -H "Accept: text/xml" -sfku "${apiUser}:${apiPassword}" "${apiURL}/JSSResource/policies" | xmllint --format - | awk -F'>|<' '/<name>/{print $3}')
+
+	SECONDS="0"
+
+	policyNames=$( curl -H "Accept: text/xml" -sfku "${apiUser}:${apiPassword}" "${apiURL}/JSSResource/policies" | xmllint --format - | awk -F'>|<' '/<name>/{print $3}')
 
 	# Exit if API connection settings are incorrect
 	if [[ -z ${policyNames} ]]; then
 		ScriptLog "ERROR: API connection settings incorrect; exiting"
-		printf "\n\nERROR: API connection settings incorrect; exiting\n\n"
+		printf "\n\n${red}ERROR:${resetColor} API connection settings incorrect; exiting\n\n"
 		exit 1
 	fi
 
 	ScriptLog "Build list of policy IDs via API ..."
-	policyIDs=$( /usr/bin/curl -H "Accept: text/xml" -sfku "${apiUser}:${apiPassword}" "${apiURL}/JSSResource/policies" | xmllint --format - | awk -F'>|<' '/<id>/{print $3}')
+	policyIDs=$( curl -H "Accept: text/xml" -sfku "${apiUser}:${apiPassword}" "${apiURL}/JSSResource/policies" | xmllint --format - | awk -F'>|<' '/<id>/{print $3}')
 
 	# Create array for Policy names
 	ScriptLog "Create array for Policy names ..."
 	while read policyName; do
-		policyNamesArray+=("$policyName")
-	done < <( printf '%s\n' "$policyNames" )
+		policyNamesArray+=( "${policyName}" )
+	done < <( printf '%s\n' "${policyNames}" )
 
 	# Create array for Policy IDs
 	ScriptLog "Create array for Policy IDs ..."
 	while read policyID; do
-		policyIDsArray+=("$policyID")
-	done < <( printf '%s\n' "$policyIDs" )
+		policyIDsArray+=( "${policyID}" )
+	done < <( printf '%s\n' "${policyIDs}" )
 
 	# Display Policy names with index labels
 	ScriptLog "Display Policy names with index labels ..."
 	for i in "${!policyNamesArray[@]}"; do
 		if [[ -z ${policyNameSearchString} ]]; then
-			printf "%s\t%s\n" "[$i]" "${policyNamesArray[$i]}"
+			if [ $((i%2)) -eq 0 ]; then
+				printf "%s\t%s\n" "${yellow}[$i] ${policyNamesArray[$i]}${resetColor}"
+			else
+				printf "%s\t%s\n" "[$i] ${policyNamesArray[$i]}"
+			fi
 		else
 			ScriptLog "Limit to policy names containing ${policyNameSearchString} ..."
-			printf "%s\t%s\n" "[$i]" "${policyNamesArray[$i]}" | /usr/bin/grep -i ${policyNameSearchString}
+			if [ $((i%2)) -eq 0 ]; then
+				printf "%s\t%s\n" "${cyan}[$i] ${policyNamesArray[$i]}${resetColor}" | grep -i ${policyNameSearchString}
+			else
+				printf "%s\t%s\n" "[$i] ${policyNamesArray[$i]}" | grep -i ${policyNameSearchString}
+			fi
 		fi
 	done
+
+	ScriptLog "Elapsed Time: ${SECONDS} seconds"
+	ScriptLog ""
+
 	ScriptLog "Prompting user to select policy ..."
 
-	echo "
-	Choose the Policy to update by entering its index number:"
+	SECONDS="0"
+
+	printf "\nChoose the Policy to update by entering its index number: (e[x]it)"
 
 	read -r -p "`echo $'\n> '`" policyChoice
+
+	ScriptLog "Elapsed Time: ${SECONDS} seconds"
+	ScriptLog ""
 
 	if [ "${policyChoice}" -eq "${policyChoice}" ] 2>/dev/null; then
 		ScriptLog "Policy index: ${policyChoice}"
 	else
-		printf "\n\nERROR: \"${policyChoice}\" is not an index number; exiting.\n\n"
 		ScriptLog "ERROR: \"${policyChoice}\" is not an index number; exiting."
+		printf "\n${red}ERROR:${resetColor} \"${policyChoice}\" is not an index number; exiting.\n\n\n"
 		exit 1
 	fi
 
@@ -551,8 +634,10 @@ function selectPolicy() {
 
 function downloadBackupXML() {
 
-	printf "\n\n\n-------------------------------------------------------------------------------------------------------"
-	printf "\n\n###\n"
+	SECONDS="0"
+
+	printf "\n${dividerLine}"
+	printf "\n###\n"
 	echo "# Step 3 of 6: Download and Backup Policy XML"
 	printf "###\n\n"
 
@@ -564,7 +649,7 @@ function downloadBackupXML() {
 
 	# Ensure Backup Directory exists
 	if [[ ! -d ${backupDirectory} ]]; then
-		/bin/mkdir -p ${backupDirectory}
+		mkdir -p ${backupDirectory}
 		ScriptLog "Created backup directory: ${backupDirectory}"
 	fi
 
@@ -573,16 +658,17 @@ function downloadBackupXML() {
 
 	# Ensure Update Directory exists
 	if [[ ! -d ${updatesDirectory} ]]; then
-		/bin/mkdir -p ${updatesDirectory}
+		mkdir -p ${updatesDirectory}
 		ScriptLog "Created update directory: ${updatesDirectory}"
 	fi
 
 	# Download policy XML
 	if [[ ${debug} ==  "true" ]]; then
-		ScriptLog "Debug mode enabled; displaying output of curl command to user ..."
-		/usr/bin/curl -u "$apiUser":"$apiPassword" $apiURL/JSSResource/policies/id/${policyID} -H "Accept: application/xml" -X GET -o ${backupDirectory}/policy-${policyID}.xml
+		ScriptLog "DEBUG MODE ENABLED: Displaying curl command output ..."
+		printf "\n\n${green}DEBUG MODE ENABLED:${resetColor} Displaying curl command output ...\n"
+		curl -u "${apiUser}":"${apiPassword}" ${apiURL}/JSSResource/policies/id/${policyID} -H "Accept: application/xml" -X GET -o ${backupDirectory}/policy-${policyID}.xml
 	else
-		/usr/bin/curl -s -u "$apiUser":"$apiPassword" $apiURL/JSSResource/policies/id/${policyID} -H "Accept: application/xml" -X GET -o ${backupDirectory}/policy-${policyID}.xml
+		curl -s -u "${apiUser}":"${apiPassword}" ${apiURL}/JSSResource/policies/id/${policyID} -H "Accept: application/xml" -X GET -o ${backupDirectory}/policy-${policyID}.xml
 	fi
 	echo "• Downloaded to: ${backupDirectory}/policy-${policyID}.xml ..."
 	ScriptLog "Downloaded to: ${backupDirectory}/policy-${policyID}.xml"
@@ -591,22 +677,26 @@ function downloadBackupXML() {
 	echo "• Copying ../Backups/policy-${policyID}.xml to ../Updates/policy-${policyID}.xml"
 	ScriptLog "Copying ../Backups/policy-${policyID}.xml to ../Updates/policy-${policyID}.xml"
 	if [[ ${debug} ==  "true" ]]; then
-		ScriptLog "Debug mode enabled; displaying output of cp command to user ..."
-		/bin/cp -v ${backupDirectory}/policy-${policyID}.xml ${updatesDirectory}/policy-${policyID}.xml
+		ScriptLog "DEBUG MODE ENABLED: Displaying cp command output ..."
+		printf "\n\n${green}DEBUG MODE ENABLED:${resetColor} Displaying cp command output ...\n"
+		cp -v ${backupDirectory}/policy-${policyID}.xml ${updatesDirectory}/policy-${policyID}.xml
 	else
-		/bin/cp ${backupDirectory}/policy-${policyID}.xml ${updatesDirectory}/policy-${policyID}.xml
+		cp ${backupDirectory}/policy-${policyID}.xml ${updatesDirectory}/policy-${policyID}.xml
 	fi
 	echo "• Copied to ../Updates/policy-${policyID}.xml"
 	ScriptLog "Copied to ../Updates/policy-${policyID}.xml"
 
 	# Exit if update file does not exist
 	if [[ ! -f "${updatesDirectory}/policy-${policyID}.xml" ]]; then
-		echo "ERROR: Policy file \"../Updates/policy-${policyID}.xml\" does NOT exist; exiting"
+		printf "${red}ERROR:${resetColor} Policy file \"../Updates/policy-${policyID}.xml\" does NOT exist; exiting"
 		ScriptLog "ERROR: Policy file \"../Updates/policy-${policyID}.xml\" does NOT exist; exiting"
 		exit 1
 	fi
 
-	printf "\n-------------------------------------------------------------------------------------------------------\n"
+	printf "${dividerLine}"
+
+	ScriptLog "Elapsed Time: ${SECONDS} seconds"
+	ScriptLog ""
 
 }
 
@@ -618,45 +708,70 @@ function downloadBackupXML() {
 
 function promptNewVersion() {
 
+	SECONDS="0"
+
 	printf "\n###\n"
 	echo "# Step 4 of 6: Specify new version number"
 	printf "###\n\n"
 
 	# Lookup policy name
-	policyName=$( /usr/bin/xmllint --xpath "/policy/general/name/text()" ${updatesDirectory}/policy-${policyID}.xml )
+	policyName=$( xmllint --xpath "/policy/general/name/text()" ${updatesDirectory}/policy-${policyID}.xml )
 	printf "• Policy Name: ${policyName}\n"
 	ScriptLog "Policy Name: ${policyName}"
 
 	# Determine current version
-	currentVersion=$( echo $policyName | /usr/bin/awk -F"[()]" '{print $2}' )
+	currentVersion=$( echo ${policyName} | awk -F"[()]" '{print $2}' )	# For policy names where the version is inside parenthesis
+	# currentVersion=$( echo ${policyName} | awk -F"[-]" '{print $2}' )	# For policy names where the version is after a dash
 	if [[ -z ${currentVersion} ]]; then
-		currentPackageName=$( /usr/bin/xmllint --xpath "/policy/package_configuration/packages/package/name/text()"  ${updatesDirectory}/policy-${policyID}.xml )
+		currentPackageName=$( xmllint --xpath "/policy/package_configuration/packages/package/name/text()" ${updatesDirectory}/policy-${policyID}.xml )
+
+		if [[ -z ${currentPackageName} ]]; then
+			printf "\n\n\n###\n#\n# ${red}ERROR:${resetColor} The policy \"${policyName}\" does NOT appear to include a package.\n# Please select a different policy.\n#\n###\n\n\n"
+			ScriptLog "ERROR: The policy \"${policyName}\" does NOT appear to include a package."
+			ScriptLog "Pause for 10 seconds"
+			sleep 10
+			selectPolicy
+		fi
+
 		# Prompt user for current version
 		printf "• Current version: UNKOWN\n"
 		printf "• Current Package Name: ${currentPackageName}\n\n"
 
-		read -p "Please specify the current version number: `echo $'\n> '`" currentVersion
+		read -p "Please specify the current version number: (e[x]it)`echo $'\n> '`" currentVersion
 		ScriptLog "Current version number: ${currentVersion}"
+
 		if [[ -z ${currentVersion} ]]; then
 			ScriptLog "User did not enter a current version"
-			printf "\n\n• ERROR: Current version can not be blank\n\n"
+			printf "\n\n• ${red}ERROR:${resetColor} Current version can not be blank\n\n"
 			promptNewVersion
+		fi
+
+		if [[ ${currentVersion} == "x" ]]; then
+			ScriptLog "ERROR: \"${currentVersion}\" entered for current version number; exiting."
+			printf "\n${red}ERROR:${resetColor} \"${currentVersion}\" entered for current version number; exiting.\n\n\n"
+			exit 0
 		fi
 
 	fi
 
-	printf "\n• Current version: ${currentVersion}\n\n"
 	ScriptLog "Current version: ${currentVersion}"
+	printf "• Current version: ${currentVersion}\n\n"
 
 	ScriptLog "Prompting user for new version number ..."
 
-	read -p "Please specify the new version number: `echo $'\n> '`" newVersion
+	read -p "Please specify the new version number: (e[x]it)`echo $'\n> '`" newVersion
 	ScriptLog "New version number: ${newVersion}"
 	echo " "
 	if [[ -z ${newVersion} ]]; then
 		ScriptLog "User did not enter a new version"
-		printf "\n\n• ERROR: New version can not be blank"
+		printf "\n\n• ${red}ERROR:${resetColor} New version can not be blank"
 		promptNewVersion
+	fi
+
+	if [[ ${newVersion} == "x" ]]; then
+		ScriptLog "ERROR: \"${newVersion}\" entered for new version number; exiting."
+		printf "\n${red}ERROR:${resetColor} \"${newVersion}\" entered for new version number; exiting.\n\n\n"
+		exit 0
 	fi
 
 	read -n 1 -r -p "Are you sure you want to update version \"${currentVersion}\" to version \"${newVersion}\"? [y]es, [n]o or e[x]it: `echo $'\n> '`" confirmUpdate
@@ -676,7 +791,7 @@ function promptNewVersion() {
 
 			ScriptLog "Prompt user for new version ..."
 
-			/usr/bin/clear
+			clear
 
 			promptNewVersion
 
@@ -691,11 +806,15 @@ function promptNewVersion() {
 
 		*)
 
-			printf "\n\nERROR: Did not recognize response: ${confirmUpdate}; exiting.\n\n"
+			ScriptLog "ERROR: Did not recognize response: ${confirmUpdate}; exiting."
+			printf "\n\n${red}ERROR:${resetColor} Did not recognize response: ${confirmUpdate}; exiting.\n\n"
 			exit 1
 			;;
 
 	esac
+
+	ScriptLog "Elapsed Time: ${SECONDS} seconds"
+	ScriptLog ""
 
 }
 
@@ -707,20 +826,25 @@ function promptNewVersion() {
 
 function updatePolicyVersion() {
 
-	printf "\n\n-------------------------------------------------------------------------------------------------------\n"
+	SECONDS="0"
+
+	printf "\n${dividerLine}"
 	printf "\n###\n"
 	echo "# Step 5 of 6: Update Policy"
 	printf "###\n\n"
 
 	echo "• Replacing \"${currentVersion}\" with \"${newVersion}\" ..."
 	ScriptLog "Replacing \"${currentVersion}\" with \"${newVersion}\" ..."
-	/usr/bin/sed -i.bak1 "s|${currentVersion}|${newVersion}|g" ${updatesDirectory}/policy-${policyID}.xml
+	sed -i.bak1 "s|${currentVersion}|${newVersion}|g" ${updatesDirectory}/policy-${policyID}.xml
 
 	echo "• Done."
 
-	newpolicyName=$( /usr/bin/xmllint --xpath "/policy/general/name/text()" ${updatesDirectory}/policy-${policyID}.xml )
-	printf "• Updated Policy name: ${newpolicyName}\n"
-	ScriptLog "Updated Policy name: ${newpolicyName}"
+	updatedPolicyName=$( xmllint --xpath "/policy/general/name/text()" ${updatesDirectory}/policy-${policyID}.xml )
+	printf "• Updated Policy name: ${updatedPolicyName}\n"
+	ScriptLog "Updated Policy name: ${updatedPolicyName}"
+
+	ScriptLog "Elapsed Time: ${SECONDS} seconds"
+	ScriptLog ""
 
 }
 
@@ -732,26 +856,37 @@ function updatePolicyVersion() {
 
 function updatePackageID() {
 
-	echo "• Updating Package ID for \"${newpolicyName}\" ..."
-	ScriptLog "Updating Package ID for  \"${newpolicyName}\" ..."
+	SECONDS="0"
 
-	currentPackageID=$( /usr/bin/xmllint --xpath "/policy/package_configuration/packages/package/id/text()"  ${updatesDirectory}/policy-${policyID}.xml )
+	echo "• Updating Package ID for \"${updatedPolicyName}\" ..."
+	ScriptLog "Updating Package ID for  \"${updatedPolicyName}\" ..."
+
+	currentPackageID=$( xmllint --xpath "/policy/package_configuration/packages/package/id/text()" ${updatesDirectory}/policy-${policyID}.xml )
 	echo "• The \"${policyName}\" policy has a Package ID of: ${currentPackageID}"
 
-	newPackageName=$( /usr/bin/xmllint --xpath "/policy/package_configuration/packages/package/name/text()"  ${updatesDirectory}/policy-${policyID}.xml )
+	newPackageName=$( xmllint --xpath "/policy/package_configuration/packages/package/name/text()" ${updatesDirectory}/policy-${policyID}.xml )
 	echo "• Determining Package ID for \"${newPackageName}\" ..."
 
 	newPackageNameScrubbed=$( echo ${newPackageName} | sed 's| |%20|g' )
 
-	newPackageID=$( /usr/bin/curl -H "Accept: text/xml" -sfku "${apiUser}:${apiPassword}" "${apiURL}/JSSResource/packages/name/${newPackageNameScrubbed}" | xmllint --format - | awk -F'>|<' '/<id>/{print $3}')
+	newPackageID=$( curl -H "Accept: text/xml" -sfku "${apiUser}:${apiPassword}" "${apiURL}/JSSResource/packages/name/${newPackageNameScrubbed}" | xmllint --format - | awk -F'>|<' '/<id>/{print $3}')
+
+	if [[ -z ${newPackageID} ]]; then
+		printf "\n\n###\n#\n# ${red}ERROR:${resetColor} A package named \"${newPackageName}\" was NOT found!\n#\n# Please upload \"${newPackageName}\" before proceeding.\n#\n# Exiting.\n#\n###\n\n\n"
+		ScriptLog "ERROR: \"${newPackageName}\" NOT found; please upload \"${newPackageName}\" before proceeding; exiting."
+		exit 1
+	fi
 
 	echo "• Package \"${newPackageName}\" has an ID of: ${newPackageID} ..."
 
 	echo "• Updating Package ID from \"${currentPackageID}\" to \"${newPackageID}\" ..."
 
-	/usr/bin/sed -i.bak2 "s|<package><id>${currentPackageID}|<package><id>${newPackageID}|" ${updatesDirectory}/policy-${policyID}.xml
+	sed -i.bak2 "s|<package><id>${currentPackageID}|<package><id>${newPackageID}|" ${updatesDirectory}/policy-${policyID}.xml
 
 	echo "• Done."
+
+	ScriptLog "Elapsed Time: ${SECONDS} seconds"
+	ScriptLog ""
 
 }
 
@@ -761,16 +896,18 @@ function updatePackageID() {
 # Prompt Upload New Policy
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-function promptUploadNewPolicy() {
+function promptUploadUpdatedPolicy() {
+
+	SECONDS="0"
 
 	unset uploadChoice
 
-	printf "\n-------------------------------------------------------------------------------------------------------\n"
+	printf "${dividerLine}"
 	printf "\n###\n"
-	echo "# Step 6 of 6: Upload New Policy"
+	echo "# Step 6 of 6: Upload Updated Policy"
 	printf "###\n\n"
 
-	printf "• New Policy Name: ${newpolicyName}\n\n"
+	printf "• Updated Policy Name: ${updatedPolicyName}\n\n"
 
 	# Prompt user for permission to proceed
 	read -n 1 -r -p "Would you like to upload this policy? [y]es or [n]o: `echo $'\n> '`" uploadChoice
@@ -780,7 +917,7 @@ function promptUploadNewPolicy() {
 
 		y|Y )
 
-			uploadNewPolicy
+			uploadUpdatedPolicy
 			;;
 
 		n|N )
@@ -792,12 +929,15 @@ function promptUploadNewPolicy() {
 
 		*)
 
-			ScriptLog "ERROR: Did not recognize response: $choice; exiting."
-			printf "\nERROR: Did not recognize response: $choice; exiting."
+			ScriptLog "ERROR: Did not recognize response: ${uploadChoice}; exiting."
+			printf "\n${red}ERROR:${resetColor} Did not recognize response: ${uploadChoice}; exiting."
 			exit 1
 			;;
 
 	esac
+
+	ScriptLog "Elapsed Time: ${SECONDS} seconds"
+	ScriptLog ""
 
 }
 
@@ -807,20 +947,26 @@ function promptUploadNewPolicy() {
 # Upload New Policy
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-function uploadNewPolicy() {
+function uploadUpdatedPolicy() {
 
-	ScriptLog "Uploading ${newpolicyName} ..."
-	printf "\n\n• Uploading \"${newpolicyName}\" ...\n"
+	SECONDS="0"
+
+	ScriptLog "Uploading ${updatedPolicyName} ..."
+	printf "\n\n• Uploading \"${updatedPolicyName}\" ...\n"
 
 	if [[ ${debug} ==  "true" ]]; then
-		ScriptLog "Debug mode enabled; displaying output of curl command to user ..."
-		/usr/bin/curl -u "$apiUser":"$apiPassword" $apiURL/JSSResource/policies/id/${policyID} -H "Content-Type: application/xml" -X PUT -T ${updatesDirectory}/policy-${policyID}.xml
+		ScriptLog "DEBUG MODE ENABLED: Displaying curl command output ..."
+		printf "${green}DEBUG MODE ENABLED:${resetColor} Displaying curl command output ..."
+		curl -u "${apiUser}":"${apiPassword}" ${apiURL}/JSSResource/policies/id/${policyID} -H "Content-Type: application/xml" -X PUT -T ${updatesDirectory}/policy-${policyID}.xml
 	else
-		/usr/bin/curl -s -u "$apiUser":"$apiPassword" $apiURL/JSSResource/policies/id/${policyID} -H "Content-Type: application/xml" -X PUT -T ${updatesDirectory}/policy-${policyID}.xml
+		curl -s -u "${apiUser}":"${apiPassword}" ${apiURL}/JSSResource/policies/id/${policyID} -H "Content-Type: application/xml" -X PUT -T ${updatesDirectory}/policy-${policyID}.xml
 	fi
 
-	ScriptLog "Uploaded ${newpolicyName} ..."
-	printf "\n• Uploaded \"${newpolicyName}\" ...\n\n"
+	ScriptLog "Uploaded ${updatedPolicyName} ..."
+	printf "\n• Uploaded \"${updatedPolicyName}\" ...\n\n"
+
+	ScriptLog "Elapsed Time: ${SECONDS} seconds"
+	ScriptLog ""
 
 }
 
@@ -830,27 +976,33 @@ function uploadNewPolicy() {
 # View New Policy
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-function viewNewPolicy() {
+function viewUpdatedPolicy() {
 
-	printf "\n-------------------------------------------------------------------------------------------------------\n"
+	SECONDS="0"
+
+	printf "${dividerLine}"
 	printf "\n###\n"
-	echo "# Complete: View New Policy"
+	echo "# Complete: View Updated Policy"
 	printf "###\n\n"
 
-	ScriptLog "Launching browser to view \"${newpolicyName}\" policy ..."
-	printf "\n• Launching browser to view \"${newpolicyName}\" policy ...\n"
-	/usr/bin/open "$apiURL/policies.html?id=${policyID}"
+	ScriptLog "Launching browser to view \"${updatedPolicyName}\" policy ..."
+	printf "• Launching browser to view \"${updatedPolicyName}\" policy ...\n"
+	open "${apiURL}/policies.html?id=${policyID}"
 
-	printf "• Policy ID \"${policyID}\" has been updated to \"${newpolicyName}.\"\n\nTo revert Policy ID \"${policyID}\" to \"${policyName},\" use the following Terminal command:\n\n\t"
+	printf "• Policy ID \"${policyID}\" has been updated to \"${updatedPolicyName}.\"\n\nTo revert Policy ID \"${policyID}\" to \"${policyName},\" copy-and-paste the following Terminal command:\n\n\t"
 	if [[ ${debug} ==  "true" ]]; then
-		ScriptLog "Debug mode enabled; displaying API password ..."
-		echo "/usr/bin/curl -k -u ${apiUser}:${apiPassword} ${apiURL}/JSSResource/policies/id/${policyID} -H \"Content-Type: application/xml\" -X PUT -T ${backupDirectory}/policy-${policyID}.xml ; /usr/bin/open '$apiURL/policies.html?id=${policyID}'"
+		ScriptLog "DEBUG MODE ENABLED: Displaying API password ..."
+		printf "${green}DEBUG MODE ENABLED:${resetColor} Displaying API password ...\n\n\t"
+		echo "curl -k -u ${apiUser}:${apiPassword} ${apiURL}/JSSResource/policies/id/${policyID} -H \"Content-Type: application/xml\" -X PUT -T ${backupDirectory}/policy-${policyID}.xml ; open '$apiURL/policies.html?id=${policyID}'"
 	else
-		echo "/usr/bin/curl -k -u ${apiUser}:API_PASSWORD_GOES_HERE ${apiURL}/JSSResource/policies/id/${policyID} -H \"Content-Type: application/xml\" -X PUT -T ${backupDirectory}/policy-${policyID}.xml"
+		echo "curl -k -u ${apiUser}:API_PASSWORD_GOES_HERE ${apiURL}/JSSResource/policies/id/${policyID} -H \"Content-Type: application/xml\" -X PUT -T ${backupDirectory}/policy-${policyID}.xml"
 	fi
 
 	ScriptLog "Policy updated"
-	printf "\n\n\n***************************************** Policy Updated *****************************************\n\n\n"
+	printf "\n\n***************************************** Policy Updated *****************************************\n\n\n\n\n\n"
+
+	ScriptLog "Elapsed Time: ${SECONDS} seconds"
+	ScriptLog ""
 
 }
 
@@ -866,9 +1018,14 @@ function promptToContinue(){
 
 	ScriptLog "Prompting user to confirm selection ..."
 
+	SECONDS="0"
+
 	# Prompt user for permission to proceed
-	read -n 1 -r -p "Would you like to update this policy? [y]es or [n]o: `echo $'\n> '`" choice
+	read -n 1 -r -p "Would you like to update this policy? [y]es, [n]o or e[x]it: `echo $'\n> '`" choice
 	ScriptLog "Would you like to update this policy?: ${choice}"
+
+	ScriptLog "Elapsed Time: ${SECONDS} seconds"
+	ScriptLog ""
 
 	case "${choice}" in
 
@@ -876,25 +1033,25 @@ function promptToContinue(){
 
 			ScriptLog "Updating policy ..."
 
-			downloadBackupXML				# Download and backup the XML
+			downloadBackupXML		# Download and backup the XML
 
-			promptNewVersion				# Prompt the user for the new version
+			promptNewVersion		# Prompt the user for the new version
 
-			promptUploadNewPolicy		# Prompt to upload the new policy using the supplied API password
+			promptUploadUpdatedPolicy	# Prompt to upload the new policy using the supplied API password
 
 			;;
 
 		n|N )
 
 			ScriptLog "Prompting user to select a different policy ..."
-			/usr/bin/clear
+			clear
 			selectPolicy
 			;;
 
 		*)
 
-			ScriptLog "ERROR: Did not recognize response: $choice; exiting."
-			printf "\nERROR: Did not recognize response: $choice; exiting."
+			ScriptLog "ERROR: Did not recognize response: ${choice}; exiting."
+			printf "\n\n${red}ERROR:${resetColor} Did not recognize response: ${choice}; exiting.\n\n\n"
 			exit 1
 			;;
 
@@ -910,24 +1067,23 @@ function promptToContinue(){
 #
 ####################################################################################################
 
-# Clear the user's Terminal session
-/usr/bin/clear
+printf '\e[8;55;105t' ; printf '\e[3;10;10t' ; clear
 
 createWorkingDirectory
 
-echo "#######################################"
-echo "# Jamf Pro Policy Editor Lite, v1.4.1 #"
-echo "#######################################"
+echo "###"
+printf "# ${blue}Jamf Pro Policy Editor Lite, ${scriptVersion}${resetColor}\n"
+echo "###"
 echo " "
 echo "This script updates a selected policy's version number. For example, the policy for
-\"Adobe Prelude CC 2018 (7.1.1)\" would be updated to: \"Adobe Prelude CC 2018 (7.1.2).\"
+\"Cloud Foundry Install (7.0.0)\" would be updated to: \"Cloud Foundry Install (7.0.1).\"
 "
 
-if [[ ${debug} ==  "true" ]]; then
-	printf "###\n# DEBUG MODE ENABLED\n###\n\n"
+if [[ ${debug} == "true" ]]; then
+	printf "###\n# ${green}DEBUG MODE ENABLED${resetColor}\n###\n\n"
 	ScriptLog "DEBUG MODE ENABLED"
-	/usr/bin/open "${logFile}"
-	/usr/bin/osascript -e 'tell application "Console" to activate'
+	open "${logFile}"
+	osascript -e 'tell application "Console" to activate'
 fi
 
 if [[ -z ${apiURL} && -z ${apiUser} && -z ${apiPassword} ]]; then
@@ -941,6 +1097,6 @@ validateAPIConnection
 
 selectPolicy
 
-viewNewPolicy
+viewUpdatedPolicy
 
 exit 0
