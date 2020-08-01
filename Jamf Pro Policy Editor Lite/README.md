@@ -32,6 +32,8 @@ To utilize this script, the API account must have the following privileges:
 ### Policies
 If policies include the version number in parenthesis, for example: "Adobe Prelude CC 2018 (7.1.1)", the script will automatically parse the version number, for example: "7.1.1"; otherwise, you will be prompted for the version number.
 
+(If your policy names preceed the version number with a dash, search the script for the `currentVersion` variable to change the default behavior.) 
+
 ### Packages
 The updated package must be present **before** running this script.
 
@@ -42,7 +44,7 @@ The updated package must be present **before** running this script.
 This script was designed to be run _interactively_ in Terminal and allows you to use the API (along with valid API credentials) to update a policy's version number.  
 
 This script uses some **BASH** specific items; please first make the script executable:  
-`chmod +x /path/to/Jamf\ Pro\ Policy\ Editor\ Lite.sh`  
+`chmod +x /path/to/Jamf\ Pro\ Policy\ Editor\ Lite.bash`  
 
 To use the script:
 `/path/to/path/to/Jamf\ Pro\ Policy\ Editor\ Lite.sh`  
