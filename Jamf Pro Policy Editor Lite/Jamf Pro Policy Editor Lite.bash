@@ -1069,15 +1069,15 @@ function promptToContinue(){
 
 printf '\e[8;55;105t' ; printf '\e[3;10;10t' ; clear
 
-createWorkingDirectory
-
 echo "###"
-printf "# ${blue}Jamf Pro Policy Editor Lite, ${scriptVersion}${resetColor}\n"
+printf "# Jamf Pro Policy Editor Lite, ${blue}${scriptVersion}${resetColor}\n"
 echo "###"
 echo " "
 echo "This script updates a selected policy's version number. For example, the policy for
 \"Cloud Foundry Install (7.0.0)\" would be updated to: \"Cloud Foundry Install (7.0.1).\"
 "
+
+createWorkingDirectory
 
 if [[ ${debug} == "true" ]]; then
 	printf "###\n# ${green}DEBUG MODE ENABLED${resetColor}\n###\n\n"
