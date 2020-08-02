@@ -58,9 +58,9 @@ removeKeychainIdentity() {
 
 	echo " " # Blank line for readability
 	echo "• Keychain identity to find: ${1}"
-	hashID=$( /usr/bin/security find-identity -v -s "${1}" /Users/${loggedInUser}/Library/Keychains/login.keychain-db | /usr/bin/grep -B 1 "valid identities found" | /usr/bin/awk {'print $2'} | /usr/bin/head -1 )
-	echo ${hashID}
-	echo "• Keychain identity to delete: ${1}"
+	# hashID=$( /usr/bin/security find-identity -s "${1}" /Users/${loggedInUser}/Library/Keychains/login.keychain-db | /usr/bin/grep -A 1 "Matching identities" | /usr/bin/awk {'print $2'} | /usr/bin/tail -1 )
+	hashID=$( /usr/bin/security  find-certificate -a -Z /Users/${loggedInUser}/Library/Keychains/login.keychain-db | /usr/bin/grep -B 9 "${1}"  | /usr/bin/grep "SHA-1" | /usr/bin/awk '{print $3}' )
+	echo "• Keychain identity to delete: ${1}, a.k.a. ${hashID}"
 	echo "`/usr/bin/security delete-identity -Z ${hashID} /Users/${loggedInUser}/Library/Keychains/login.keychain-db`"
 	# /usr/bin/su \- "${loggedInUser}" -c "/usr/bin/security delete-identity -Z ${hashID} /Users/${loggedInUser}/Library/Keychains/login.keychain-db"
 
@@ -97,14 +97,17 @@ echo "• Remove Cookies"
 /usr/bin/su \- "${loggedInUser}" -c "/bin/rm -fv /Users/${loggedInUser}/Library/Cookies/com.microsoft.CompanyPortal.binarycookies"
 /usr/bin/su \- "${loggedInUser}" -c "/bin/rm -fv /Users/${loggedInUser}/Library/Cookies/com.jamf.management.jamfAAD.binarycookies"
 
-echo "• Remove Keychain entries"
+echo "• Remove Keychain Generic Passwords"
 removeKeychainGenericPassword "com.microsoft.CompanyPortal"
 removeKeychainGenericPassword "com.microsoft.CompanyPortal.HockeySDK"
 removeKeychainGenericPassword "enterpriseregistration.windows.net"
 removeKeychainGenericPassword "https://device.login.microsoftonline.com"
 removeKeychainGenericPassword "https://device.login.microsoftonline.com/"
-removeKeychainIdentity "Microsoft Session Transport Key"	# NOT WORKING
-removeKeychainIdentity "Microsoft Workplace Join Key"		# NOT WORKING
+
+echo "• Remove Keychain Identity"
+removeKeychainIdentity "MS-ORGANIZATION-ACCESS"
+# removeKeychainIdentity "Microsoft Session Transport Key"	# NOT WORKING
+# removeKeychainIdentity "Microsoft Workplace Join Key"		# NOT WORKING
 
 # echo "• Update computer inventory"
 # /usr/local/bin/jamf recon
