@@ -65,7 +65,7 @@ apiUser=""
 apiPassword=""
 
 # Debug mode [ true | false ]
-debug="false"
+debug="true"
 
 # ------------------------------ No edits required below this line --------------------------------
 
