@@ -42,6 +42,10 @@
 #		Row highlighting in policy list
 #		General updates and performance improvements
 #
+#	Version 1.4.3, 04-Aug-2020, Dan K. Snelson
+#		Added option to display package names when selecting the policy to update (inspired by Stew)
+#		Formatting
+#
 ####################################################################################################
 
 
@@ -52,7 +56,7 @@
 #
 ####################################################################################################
 
-scriptVersion="1.4.2"
+scriptVersion="1.4.3"
 
 # Values for API connection; if left blank, you will be prompted to interactively enter.
 # If you have multiple lanes, fill-in variables in the "laneSelection" function below.
@@ -61,7 +65,7 @@ apiUser=""
 apiPassword=""
 
 # Debug mode [ true | false ]
-debug="true"
+debug="false"
 
 # ------------------------------ No edits required below this line --------------------------------
 
@@ -118,7 +122,11 @@ function createWorkingDirectory() {
 	# Ensure Log File exists
 	if [[ ! -d ${logFile} ]]; then
 		touch ${logFile}
-		printf "###\n#\n# Jamf Pro Policy Editor Lite\n# Version: ${scriptVersion}\n#\n# Log file created on:\n# ${timestamp}\n#\n# Working Directory Filesize and Location\n# `du -sh ${workingDirectory}`\n#\n###\n\n" >> ${logFile}
+		if [[ ${debug} == "true" ]]; then
+			printf "###\n#\n# Jamf Pro Policy Editor Lite\n# Version: ${scriptVersion}\n#\n# Log file created on:\n# ${timestamp}\n#\n# Working Directory Filesize and Location\n# `du -sh ${workingDirectory}`\n#\n###\n\n" >> ${logFile}
+		else
+			printf "###\n#\n# Jamf Pro Policy Editor Lite\n# Version: ${scriptVersion}\n#\n# Log file created on:\n# ${timestamp}\n#\n###\n\n" >> ${logFile}
+		fi
 	fi
 
 }
@@ -226,7 +234,7 @@ function apiConnectionSettings() {
 	printf "\n${dividerLine}"
 	printf "\n###\n"
 	echo "# Step 1 of 6: API Connection Settings"
-	printf "###\n"
+	printf "###"
 
 	SECONDS="0"
 
@@ -469,7 +477,7 @@ function promptAPIpassword() {
 
 	fi
 
-	if [[ ${debug} ==  "true" ]]; then
+	if [[ ${debug} == "true" ]]; then
 		ScriptLog "DEBUG MODE ENABLED: Displaying API Password ..."
 		ScriptLog "Using the API Password of: ${apiPassword}"
 		printf "\n• ${green}DEBUG MODE ENABLED:${resetColor} Displaying API Password ..."
@@ -545,7 +553,8 @@ function selectPolicy() {
 	printf "###\n\n"
 
 	# Build two lists via the API: One for Policy names; the other for their respective IDs.
-	ScriptLog "Build list of policy names via API ..."
+	ScriptLog "Building list of policy names via API ..."
+	printf "Building list of policy names via API ...\n\n"
 
 	SECONDS="0"
 
@@ -599,14 +608,31 @@ function selectPolicy() {
 
 	SECONDS="0"
 
-	printf "\nChoose the Policy to update by entering its index number: (e[x]it)"
+	printf "\nChoose the Policy to update by entering its index number, view all [p]ackages or e[x]it:"
 
 	read -r -p "`echo $'\n> '`" policyChoice
 
 	ScriptLog "Elapsed Time: ${SECONDS} seconds"
 	ScriptLog ""
 
-	if [ "${policyChoice}" -eq "${policyChoice}" ] 2>/dev/null; then
+	if [[ "${policyChoice}" == "p" ]]; then
+		ScriptLog "Displaying a list of packages"
+		packageNames=$( curl -H "Accept: text/xml" -sfku "${apiUser}:${apiPassword}" "${apiURL}/JSSResource/packages" | xmllint --format - | awk -F'>|<' '/<name>/{print $3}')
+		printf "\nPackage Names:\n\n"
+		printf "${packageNames}"
+		unset policyChoice
+		printf "\n\nChoose the Policy to update by entering its index number or e[x]it:"
+		read -r -p "`echo $'\n> '`" policyChoice
+	fi
+
+	if [[ "${policyChoice}" == "x" ]]; then
+		ScriptLog "User entered \"${policyChoice}\"; exiting."
+		ScriptLog "Exiting. Goodbye!"
+		printf "\n\nExiting. Goodbye!\n\n"
+		exit 0
+	fi
+
+	if [[ "${policyChoice}" -eq "${policyChoice}" ]] 2>/dev/null; then
 		ScriptLog "Policy index: ${policyChoice}"
 	else
 		ScriptLog "ERROR: \"${policyChoice}\" is not an index number; exiting."
@@ -663,7 +689,7 @@ function downloadBackupXML() {
 	fi
 
 	# Download policy XML
-	if [[ ${debug} ==  "true" ]]; then
+	if [[ ${debug} == "true" ]]; then
 		ScriptLog "DEBUG MODE ENABLED: Displaying curl command output ..."
 		printf "\n\n${green}DEBUG MODE ENABLED:${resetColor} Displaying curl command output ...\n"
 		curl -u "${apiUser}":"${apiPassword}" ${apiURL}/JSSResource/policies/id/${policyID} -H "Accept: application/xml" -X GET -o ${backupDirectory}/policy-${policyID}.xml
@@ -954,7 +980,7 @@ function uploadUpdatedPolicy() {
 	ScriptLog "Uploading ${updatedPolicyName} ..."
 	printf "\n\n• Uploading \"${updatedPolicyName}\" ...\n"
 
-	if [[ ${debug} ==  "true" ]]; then
+	if [[ ${debug} == "true" ]]; then
 		ScriptLog "DEBUG MODE ENABLED: Displaying curl command output ..."
 		printf "${green}DEBUG MODE ENABLED:${resetColor} Displaying curl command output ..."
 		curl -u "${apiUser}":"${apiPassword}" ${apiURL}/JSSResource/policies/id/${policyID} -H "Content-Type: application/xml" -X PUT -T ${updatesDirectory}/policy-${policyID}.xml
@@ -990,12 +1016,12 @@ function viewUpdatedPolicy() {
 	open "${apiURL}/policies.html?id=${policyID}"
 
 	printf "• Policy ID \"${policyID}\" has been updated to \"${updatedPolicyName}.\"\n\nTo revert Policy ID \"${policyID}\" to \"${policyName},\" copy-and-paste the following Terminal command:\n\n\t"
-	if [[ ${debug} ==  "true" ]]; then
+	if [[ ${debug} == "true" ]]; then
 		ScriptLog "DEBUG MODE ENABLED: Displaying API password ..."
 		printf "${green}DEBUG MODE ENABLED:${resetColor} Displaying API password ...\n\n\t"
 		echo "curl -k -u ${apiUser}:${apiPassword} ${apiURL}/JSSResource/policies/id/${policyID} -H \"Content-Type: application/xml\" -X PUT -T ${backupDirectory}/policy-${policyID}.xml ; open '$apiURL/policies.html?id=${policyID}'"
 	else
-		echo "curl -k -u ${apiUser}:API_PASSWORD_GOES_HERE ${apiURL}/JSSResource/policies/id/${policyID} -H \"Content-Type: application/xml\" -X PUT -T ${backupDirectory}/policy-${policyID}.xml"
+		echo "curl -k -u ${apiUser}:API_PASSWORD_GOES_HERE ${apiURL}/JSSResource/policies/id/${policyID} -H \"Content-Type: application/xml\" -X PUT -T ${backupDirectory}/policy-${policyID}.xml ; open '$apiURL/policies.html?id=${policyID}'"
 	fi
 
 	ScriptLog "Policy updated"
@@ -1070,7 +1096,7 @@ function promptToContinue(){
 printf '\e[8;55;105t' ; printf '\e[3;10;10t' ; clear
 
 echo "###"
-printf "# Jamf Pro Policy Editor Lite, ${blue}${scriptVersion}${resetColor}\n"
+printf "# Jamf Pro Policy Editor Lite, ${yellow}${scriptVersion}${resetColor}\n"
 echo "###"
 echo " "
 echo "This script updates a selected policy's version number. For example, the policy for
