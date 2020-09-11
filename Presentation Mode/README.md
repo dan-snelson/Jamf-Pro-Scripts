@@ -1,4 +1,4 @@
-# Presentation Mode (2.0.0)
+# Presentation Mode
 
 ![Presentation Mode (2.0.0) Self Service Policy](PresentationMode-00002.png "Presentation Mode (2.0.0) Self Service Policy")
 
@@ -46,7 +46,7 @@ Thus was **Presenation Mode** born.
 
 ---
 
-# Overview [^](#contents)
+# Overview
 
 Presentation Mode leverages the Jamf Pro API to switch between one of two Configuration Profiles:
 - **Security & Privacy**: Security-approved settings for screensaver password timeouts, computer sleep options, etc.
@@ -64,7 +64,7 @@ A LaunchDaemon created just-in-time executes a Jamf Pro policy via a Custom Even
 
 ---
 
-# Setup and Configuration [^](#contents)
+# Setup and Configuration
 
 ## API Permissions for Computer Extension Attributes
 
@@ -87,7 +87,7 @@ Create a Jamf Pro Standard Account …
 ---
 
 
-## Extension Attribute [^](#contents)
+## Extension Attribute
 
 Create the **Presentation Mode 2** Extension Attribute with the following settings:
 
@@ -101,7 +101,7 @@ Create the **Presentation Mode 2** Extension Attribute with the following settin
 
 ---
 
-## Smart Groups [^](#contents)
+## Smart Groups
 
 Create two Smart Groups using the following criteria:
 
@@ -118,7 +118,7 @@ Create two Smart Groups using the following criteria:
 
 ---
 
-## Configuration Profiles [^](#contents)
+## Configuration Profiles
 
 ![Security & Privacy Configuration Profile](PresentationMode-00007.png "Security & Privacy Configuration Profile")
 
@@ -138,9 +138,9 @@ Create two Smart Groups using the following criteria:
 
 ---
 
-## Scripts [^](#contents)
+## Scripts
 
-### Delayed Policy Trigger Create [^](#contents)
+### Delayed Policy Trigger Create
 
 Customize the `plistDomain` variable and add the following Parameter Labels to the [Delayed Policy Trigger Create.bash](Delayed%20Policy%20Trigger%20Create.bash) script:
 
@@ -150,7 +150,7 @@ Customize the `plistDomain` variable and add the following Parameter Labels to t
 - Parameter 5: `Jamf Pro policy trigger name`
 - Parameter 6: `Interval (in minutes)`
 
-### Delayed Policy Trigger Disable [^](#contents)
+### Delayed Policy Trigger Disable
 
 Customize the `plistDomain` variable and add the following Parameter Label to the [Delayed Policy Trigger Disable.bash](Delayed%20Policy%20Trigger%20Disable.bash) script:
 
@@ -158,7 +158,7 @@ Customize the `plistDomain` variable and add the following Parameter Label to th
 
 - Parameter 4: `Unique Daemon Label`
 
-### Display Message: JAMF binary [^](#contents)
+### Display Message: JAMF binary
 
 Add the following Parameter Label to the [Display Message JAMF binary.bash](Display%20Message%20JAMF%20binary.sh) script:
 
@@ -167,7 +167,7 @@ Add the following Parameter Label to the [Display Message JAMF binary.bash](Disp
 - Parameter 4: `Text of end-user message`
 
 
-### Extension Attribute Update [^](#contents)
+### Extension Attribute Update
 
 Generated [Encrypted Script Parameters](https://github.com/jamf/Encrypted-Script-Parameters) for the encrypted API account password and update the following variables in the [Extension Attribute Update.sh](Extension%20Attribute%20Update.sh) script:
 - `apiURL`
@@ -185,7 +185,7 @@ Add the following Parameter Labels to the [Extension Attribute Update.sh](Extens
 
 ---
 
-## Policies [^](#contents)
+## Policies
 
 ### Policies Overview
 
@@ -193,7 +193,7 @@ The following provides an overview of both policies:
 
 ![Policies](PresentationMode-00013.png "Policies")
 
-### Presentation Mode Enable [^](#contents)
+### Presentation Mode Enable
 
 #### Options
 ![Presentation Mode Enable: General](PresentationMode-00014.png "Presentation Mode Enable: General")
@@ -235,7 +235,7 @@ The following provides an overview of both policies:
 
 ---
 
-### Presentation Mode Disable [^](#contents)
+### Presentation Mode Disable
 
 #### Options
 ![Presentation Mode Disable: General](PresentationMode-00019.png "Presentation Mode Disable: General")
@@ -273,5 +273,5 @@ The following provides an overview of both policies:
 
 ---
 
-# Notes [^](#contents)
+# Notes
 ![Presentation Mode has ended](PresentationMode-00023.png "Presentation Mode has ended")
