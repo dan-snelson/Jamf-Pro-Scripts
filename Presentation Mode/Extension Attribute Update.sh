@@ -36,13 +36,13 @@ decryptPassword() {
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-apiURL="https://jamfpro.company.com/" 	# JSS API URL with trailing forward slash
-apiUsername="${4}"							    		# API Username
-apiPasswordEncrypted="${5}"				    			# API Encrypted Password
-eaName="${6}"								    		# Name of Extension Attribute (i.e., "Testing Level")
-eaValue="${7}"							    			# Value for Extension Attribute (i.e., "Gamma" or "None")
-Salt="1234567890"					    			# Salt (generated from Encrypt Password)
-Passphrase="abcdefghijklmnopqrstuvwxyz"		    		# Passphrase (generated from Encrypt Password)
+apiURL="https://jamfpro.company.com/" 		# JSS API URL with trailing forward slash
+apiUsername="${4}"				# API Username
+apiPasswordEncrypted="${5}"			# API Encrypted Password
+eaName="${6}"					# Name of Extension Attribute (i.e., "Testing Level")
+eaValue="${7}"					# Value for Extension Attribute (i.e., "Gamma" or "None")
+Salt="1234567890"				# Salt (generated from Encrypt Password)
+Passphrase="abcdefghijklmnopqrstuvwxyz"		# Passphrase (generated from Encrypt Password)
 computerUDID=$(/usr/sbin/system_profiler SPHardwareDataType | /usr/bin/awk '/Hardware UUID:/ { print $3 }')
 
 
