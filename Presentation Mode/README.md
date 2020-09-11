@@ -20,7 +20,7 @@
 	- [Scripts](#scripts)
 		- [Delayed Policy Trigger Create](#delayed-policy-trigger-create)
 		- [Delayed Policy Trigger Disable](#delayed-policy-trigger-disable)
-		- [Display Message: JAMF binary](#display-message:-jamf-binary)
+		- [Display Message: JAMF binary](#display-message-jamf-binary)
 		- [Extension Attribute Update](#extension-attribute-update)
 	- [Policies](#policies)
 		- [Policies Overview](#policies-overview)
@@ -30,7 +30,7 @@
 
 ---
 
-# Genesis [^](#contents)
+# Genesis
 
 Some time ago, one of our C-level leaders — who wisely prefers macOS — was presenting to a group of other C-level leaders (most of whom use a _different_ operating system).
 
