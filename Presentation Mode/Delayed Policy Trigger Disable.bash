@@ -28,9 +28,9 @@
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-plistDomain="com.company"								# Hard-coded domain name (i.e., "com.company")
-plistLabel="${4}"										# Unique label for this plist (i.e., "presentationMode2")
-plistFilename="${plistDomain}.${plistLabel}.plist"		# Prepend domain to label
+plistDomain="com.company"				# Hard-coded domain name (i.e., "com.company")
+plistLabel="${4}"					# Unique label for this plist (i.e., "presentationMode2")
+plistFilename="${plistDomain}.${plistLabel}.plist"	# Prepend domain to label
 
 
 
