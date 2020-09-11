@@ -28,11 +28,11 @@
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-plistDomain="com.company"							# Hard-coded domain name (i.e., "com.company")
-plistLabel="$4"										# Unique Daemon Label (i.e., "presentationMode2")
+plistDomain="com.company"				# Hard-coded domain name (i.e., "com.company")
+plistLabel="$4"						# Unique Daemon Label (i.e., "presentationMode2")
 plistFilename="$plistDomain.$plistLabel.plist"		# Prepend domain to label; append ".plist" to label
-plistTrigger="$5"									# Name of Jamf Pro policy trigger
-plistStartInterval="$6"								# Interval (in minutes)
+plistTrigger="$5"					# Name of Jamf Pro policy trigger
+plistStartInterval="$6"					# Interval (in minutes)
 plistStartInterval=$(( plistStartInterval * 60 ))	# Convert interval to seconds
 
 
