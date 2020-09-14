@@ -26,7 +26,8 @@
 		- [Policies Overview](#policies-overview)
 		- [Presentation Mode Enable](#presentation-mode-enable)
 		- [Presentation Mode Disable](#presentation-mode-disable)
-- [Notes](#notes)
+- [Automatic Policy Execution Scope](#automatic-policy-execution-scope)
+- [End Notes](#end-notes)
 
 ---
 
@@ -273,5 +274,13 @@ The following provides an overview of both policies:
 
 ---
 
-# Notes
+# Automatic Policy Execution Scope
+
+![Policy Scope](PresentationMode-00024.png "Policy Scope")
+
+Add the `Presentation Mode 2: Enabled` Smart Group as an **Exclusion** for Patch Policies and any Ongoing, Recurring Check-in Policies which could interrupt users' presentations (i.e., operating system update policies, etc.) 
+
+---
+
+# End Notes
 ![Presentation Mode has ended](PresentationMode-00023.png "Presentation Mode has ended")
