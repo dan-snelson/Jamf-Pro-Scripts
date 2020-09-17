@@ -1,10 +1,10 @@
 # Presentation Mode
 
-![Presentation Mode (2.0.0) Self Service Policy](PresentationMode-00002.png "Presentation Mode (2.0.0) Self Service Policy")
+![Presentation Mode (2.0.0) Self Service Policy](images/PresentationMode-00002.png "Presentation Mode (2.0.0) Self Service Policy")
 
 ## Help your users have successful presentations with a Self Service policy which temporarily extends screensaver password timeouts, computer sleep options and automatic policy executions, then automatically restores approved security settings after a configurable duration
 
-![Presentation Mode has been enabled for 75 minutes; screen saver idle time has been set to two hours.](PresentationMode-00003.png "Presentation Mode has been enabled for 75 minutes; screen saver idle time has been set to two hours.")
+![Presentation Mode has been enabled for 75 minutes; screen saver idle time has been set to two hours.](images/PresentationMode-00003.png "Presentation Mode has been enabled for 75 minutes; screen saver idle time has been set to two hours.")
 
 
 ---
@@ -92,7 +92,7 @@ Create a Jamf Pro Standard Account …
 
 Create the **Presentation Mode 2** Extension Attribute with the following settings:
 
-![Presentation Mode 2 Extension Attribute](PresentationMode-00004.png "Presentation Mode 2 Extension Attribute")
+![Presentation Mode 2 Extension Attribute](images/PresentationMode-00004.png "Presentation Mode 2 Extension Attribute")
 
 - Data Type: `String`
 - Input Type: `Pop-up Menu`
@@ -106,13 +106,13 @@ Create the **Presentation Mode 2** Extension Attribute with the following settin
 
 Create two Smart Groups using the following criteria:
 
-![Presentation Mode 2: Disabled](PresentationMode-00005.png "Presentation Mode 2: Disabled")
+![Presentation Mode 2: Disabled](images/PresentationMode-00005.png "Presentation Mode 2: Disabled")
 
 **Presentation Mode 2: Disabled**
 - `Presentation Mode 2` `is` `Disabled`
 - `or` `Presentation Mode 2` `is` `{blank}`
 
-![Presentation Mode 2: Enabled](PresentationMode-00006.png "Presentation Mode 2: Enabled")
+![Presentation Mode 2: Enabled](images/PresentationMode-00006.png "Presentation Mode 2: Enabled")
 
 **Presentation Mode 2: Enabled**
 - `Presentation Mode 2` `is` `Enabled`
@@ -121,7 +121,7 @@ Create two Smart Groups using the following criteria:
 
 ## Configuration Profiles
 
-![Security & Privacy Configuration Profile](PresentationMode-00007.png "Security & Privacy Configuration Profile")
+![Security & Privacy Configuration Profile](images/PresentationMode-00007.png "Security & Privacy Configuration Profile")
 
 **Security & Privacy**: Security-approved settings for screensaver password timeouts, computer sleep options, etc., scoped to **Presentation Mode 2: Disabled**.
 - Restrictions
@@ -129,7 +129,7 @@ Create two Smart Groups using the following criteria:
 - Security and Privacy
 - Energy Saver
 
-![Presentation Mode Configuration Profile](PresentationMode-00008.png "Presentation Mode Configuration Profile")
+![Presentation Mode Configuration Profile](images/PresentationMode-00008.png "Presentation Mode Configuration Profile")
 
 **Presentation Mode**: Security-approved _relaxed_ settings for screensaver password timeouts, computer sleep options, etc., scoped to **Presentation Mode 2: Enabled**. (Most frequently created from a clone of the Security & Privacy Configuration Profile.)
 - Restrictions
@@ -143,9 +143,9 @@ Create two Smart Groups using the following criteria:
 
 ### Delayed Policy Trigger Create
 
-Customize the `plistDomain` variable and add the following Parameter Labels to the [Delayed Policy Trigger Create.bash](Delayed%20Policy%20Trigger%20Create.bash) script:
+Customize the `plistDomain` variable and add the following Parameter Labels to the [Delayed Policy Trigger Create.bash](images/Delayed%20Policy%20Trigger%20Create.bash) script:
 
-![Delayed Policy Trigger Create](PresentationMode-00009.png "Delayed Policy Trigger Create")
+![Delayed Policy Trigger Create](images/PresentationMode-00009.png "Delayed Policy Trigger Create")
 
 - Parameter 4: `Unique Daemon Label`
 - Parameter 5: `Jamf Pro policy trigger name`
@@ -155,7 +155,7 @@ Customize the `plistDomain` variable and add the following Parameter Labels to t
 
 Customize the `plistDomain` variable and add the following Parameter Label to the [Delayed Policy Trigger Disable.bash](Delayed%20Policy%20Trigger%20Disable.bash) script:
 
-![Delayed Policy Trigger Create](PresentationMode-00010.png "Delayed Policy Trigger Create")
+![Delayed Policy Trigger Create](images/PresentationMode-00010.png "Delayed Policy Trigger Create")
 
 - Parameter 4: `Unique Daemon Label`
 
@@ -163,7 +163,7 @@ Customize the `plistDomain` variable and add the following Parameter Label to th
 
 Add the following Parameter Label to the [Display Message JAMF binary.bash](Display%20Message%20JAMF%20binary.sh) script:
 
-![Display Message: JAMF binary](PresentationMode-00011.png "Display Message: JAMF binary")
+![Display Message: JAMF binary](images/PresentationMode-00011.png "Display Message: JAMF binary")
 
 - Parameter 4: `Text of end-user message`
 
@@ -175,9 +175,19 @@ Generate [Encrypted Script Parameters](https://github.com/jamf/Encrypted-Script-
 - `Salt`
 - `Passphrase`
 
+I add the following snippet to the bottom of `EncryptedStrings_Bash.sh` so the values will be output to Terminal when called via: `./EncryptedStrings_Bash.sh 'Purple Monkey Dishwasher'`
+
+```
+# Output to Terminal
+args=("$@")
+password="${args[0]}"
+
+GenerateEncryptedString "${password}"
+```
+
 Add the following Parameter Labels to the [Extension Attribute Update.sh](Extension%20Attribute%20Update.sh) script:
 
-![Delayed Policy Trigger Create](PresentationMode-00012.png "Delayed Policy Trigger Create")
+![Delayed Policy Trigger Create](images/PresentationMode-00012.png "Delayed Policy Trigger Create")
 
 - Parameter 4: `API Username (Read / Write)`
 - Parameter 5: `API Encrypted Password (Read / Write)`
@@ -192,25 +202,25 @@ Add the following Parameter Labels to the [Extension Attribute Update.sh](Extens
 
 The following provides an overview of both policies:
 
-![Policies](PresentationMode-00013.png "Policies")
+![Policies](images/PresentationMode-00013.png "Policies")
 
 ### Presentation Mode Enable
 
 #### Options
-![Presentation Mode Enable: General](PresentationMode-00014.png "Presentation Mode Enable: General")
+![Presentation Mode Enable: General](images/PresentationMode-00014.png "Presentation Mode Enable: General")
 - **General**
 	- Display Name: `Presentation Mode Enable (2.0.0)`
 	- Execution Frequency: `Ongoing`
 	- Trigger: `Self Service`
 
-![Presentation Mode Enable: General](PresentationMode-00015.png "Presentation Mode Enable: General")
+![Presentation Mode Enable: General](images/PresentationMode-00015.png "Presentation Mode Enable: General")
 - **Scripts**
 	- Delayed Policy Trigger Create
 		- Unique Daemon Label: `presentationMode2`
 		- Jamf Pro policy trigger name: `presentationMode2`
 		- Interval (in minutes): `75`
 
-![Presentation Mode Enable: General](PresentationMode-00017.png "Presentation Mode Enable: General")
+![Presentation Mode Enable: General](images/PresentationMode-00017.png "Presentation Mode Enable: General")
 - **Scripts**
 	- Extension Attribute Update
 		- API Username (Read / Write): `apiPresentationMode2`
@@ -218,7 +228,7 @@ The following provides an overview of both policies:
 		- EA Name (i.e., "Presentation Mode 2"): `Presentation Mode 2`
 		- EA Value (i.e., "Enabled" or "None"): `Enabled`
 
-![Presentation Mode Enable: General](PresentationMode-00016.png "Presentation Mode Enable: General")
+![Presentation Mode Enable: General](images/PresentationMode-00016.png "Presentation Mode Enable: General")
 - **Scripts**
 	- Display Message: JAMF binary
 		- Text of end-user message: `Presentation Mode has been enabled for 75 minutes; screen saver idle time has been set to two hours.`
@@ -229,7 +239,7 @@ The following provides an overview of both policies:
 - Exclusions: `Presentation Mode 2: Enabled`
 
 #### Self Service
-![Presentation Mode Enable: General](PresentationMode-00018.png "Presentation Mode Enable: General")
+![Presentation Mode Enable: General](images/PresentationMode-00018.png "Presentation Mode Enable: General")
 - Make the policy available in Self Service: `Enabled`
 - Self Service Display Name: `Presentation Mode (2.0.0)`
 - Description: `Click Enable to temporarily set the screensaver idle time to two hours. After 75 minutes, Presentation Mode will be automatically disabled and the screensaver settings will be restored to IT Security standards.`
@@ -239,19 +249,19 @@ The following provides an overview of both policies:
 ### Presentation Mode Disable
 
 #### Options
-![Presentation Mode Disable: General](PresentationMode-00019.png "Presentation Mode Disable: General")
+![Presentation Mode Disable: General](images/PresentationMode-00019.png "Presentation Mode Disable: General")
 - **General**
 	- Display Name: `Presentation Mode Disable (2.0.0)`
 	- Trigger
 		- Custom: `presentationMode2`
 	- Execution Frequency: `Ongoing`
 
-![Presentation Mode Disable: Script](PresentationMode-00020.png "Presentation Mode Disable: Script")
+![Presentation Mode Disable: Script](images/PresentationMode-00020.png "Presentation Mode Disable: Script")
 - **Scripts**
 	- Delayed Policy Trigger Disable
 		- Unique Daemon Label: `presentationMode2`
 
-![Presentation Mode Disable: Script](PresentationMode-00022.png "Presentation Mode Disable: Script")
+![Presentation Mode Disable: Script](images/PresentationMode-00022.png "Presentation Mode Disable: Script")
 - **Scripts**
 	- Extension Attribute Update
 		- API Username (Read / Write): `apiPresentationMode2`
@@ -259,7 +269,7 @@ The following provides an overview of both policies:
 		- EA Name (i.e., "Presentation Mode 2"): `Presentation Mode 2`
 		- EA Value (i.e., "Enabled" or "None"): `Disabled`
 
-![Presentation Mode Disable: Script](PresentationMode-00021.png "Presentation Mode Disable: Script")
+![Presentation Mode Disable: Script](images/PresentationMode-00021.png "Presentation Mode Disable: Script")
 - **Scripts**
 	- Display Message: JAMF binary
 		- Text of end-user message: `Presentation Mode has ended. The screensaver timeout is again set to the IT standards. If additional time is required, please return to the Workforce App Store and re-enable Presentation Mode.`
@@ -274,11 +284,11 @@ The following provides an overview of both policies:
 
 # Automatic Policy Execution Scope
 
-![Policy Scope](PresentationMode-00024.png "Policy Scope")
+![Policy Scope](images/PresentationMode-00024.png "Policy Scope")
 
-Add the `Presentation Mode 2: Enabled` Smart Group as an **Exclusion** for automatic Patch Policies and any Ongoing, Recurring Check-in Policies which could interrupt users' presentations (i.e., operating system update policies, etc.) 
+Add the `Presentation Mode 2: Enabled` Smart Group as an **Exclusion** for automatic Patch Policies and any Ongoing, Recurring Check-in Policies which could interrupt users' presentations (i.e., operating system update policies, etc.)
 
 ---
 
 # End Notes
-![Presentation Mode has ended](PresentationMode-00023.png "Presentation Mode has ended")
+![Presentation Mode has ended](images/PresentationMode-00023.png "Presentation Mode has ended")
