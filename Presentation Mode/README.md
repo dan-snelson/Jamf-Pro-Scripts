@@ -43,7 +43,7 @@ We all know what happens when a MacBook Air running on battery power sits idle f
 
 As the discussion concluded and our C-level leader woke up his Mac to resume his PDF-only presentation, his Mac greeted with a login prompt, a login prompt which required _multiple_ attempts to complete, all while projecting in front of the group of other C-level leaders.
 
-Thus was **Presenation Mode** born.
+Thus was **Presentation Mode** born.
 
 ---
 
@@ -170,7 +170,7 @@ Add the following Parameter Label to the [Display Message JAMF binary.bash](Disp
 
 ### Extension Attribute Update
 
-Generated [Encrypted Script Parameters](https://github.com/jamf/Encrypted-Script-Parameters) for the encrypted API account password and update the following variables in the [Extension Attribute Update.sh](Extension%20Attribute%20Update.sh) script:
+Generate [Encrypted Script Parameters](https://github.com/jamf/Encrypted-Script-Parameters) for the encrypted API account password and update the following variables in the [Extension Attribute Update.sh](Extension%20Attribute%20Update.sh) script:
 - `apiURL`
 - `Salt`
 - `Passphrase`
