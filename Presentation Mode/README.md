@@ -276,7 +276,7 @@ The following provides an overview of both policies:
 
 ![Policy Scope](PresentationMode-00024.png "Policy Scope")
 
-Add the `Presentation Mode 2: Enabled` Smart Group as an **Exclusion** for Patch Policies and any Ongoing, Recurring Check-in Policies which could interrupt users' presentations (i.e., operating system update policies, etc.) 
+Add the `Presentation Mode 2: Enabled` Smart Group as an **Exclusion** for automatic Patch Policies and any Ongoing, Recurring Check-in Policies which could interrupt users' presentations (i.e., operating system update policies, etc.) 
 
 ---
 
