@@ -265,9 +265,7 @@ The following provides an overview of both policies:
 		- Text of end-user message: `Presentation Mode has ended. The screensaver timeout is again set to the IT standards. If additional time is required, please return to the Workforce App Store and re-enable Presentation Mode.`
 
 #### Scope
-- Targets: `All Managed Clients`
-- Limitations: `None`
-- Exclusions: `Presentation Mode 2: Enabled`
+- Targets: `Presentation Mode 2: Enabled`
 
 #### User Interaction
 - Complete Message: `Presentation Mode has been disabled.`
