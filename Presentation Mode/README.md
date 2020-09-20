@@ -28,6 +28,7 @@
 		- [Presentation Mode Disable](#presentation-mode-disable)
 - [Automatic Policy Execution Scope](#automatic-policy-execution-scope)
 - [End Notes](#end-notes)
+	- [Rehearsals](#rehearsals)
 
 ---
 
