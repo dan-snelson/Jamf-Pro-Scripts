@@ -295,4 +295,5 @@ Add the `Presentation Mode 2: Enabled` Smart Group as an **Exclusion** for autom
 ![Presentation Mode has ended](images/PresentationMode-00023.png "Presentation Mode has ended")
 
 ## Rehearsals
-[rehearsal-2020-09-19.m4v](https://snelson.us/presentationMode/rehearsals/rehearsal-2020-09-19.m4v)
+- [2020-09-19](https://snelson.us/presentationMode/rehearsals/rehearsal-2020-09-19.m4v)
+- [2020-10-03](https://snelson.us/presentationMode/rehearsals/rehearsal-2020-10-03.m4v)
