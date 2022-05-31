@@ -94,10 +94,6 @@ jamfDisplayMessage "Please wait about three minutes while the disk usage for \"$
 
 
 
-
-
-
-
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Output to log
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
