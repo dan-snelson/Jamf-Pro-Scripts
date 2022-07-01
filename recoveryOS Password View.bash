@@ -127,7 +127,7 @@ function obtainJamfProAPIBearerToken() {
 
 function validateJamfProAPIBearerToken() {
 
-    apiBearerTokenCheck=$(/usr/bin/curl --write-out %{http_code} --silent --output /dev/null "${apiURL}/api/v1/auth" --request GET --header "Authorization: Bearer ${apiBearerToken}")
+    apiBearerTokenCheck=$(/usr/bin/curl --write-out "%{http_code}" --silent --output /dev/null "${apiURL}/api/v1/auth" --request GET --header "Authorization: Bearer ${apiBearerToken}")
 
     scriptResult+="apiBearerTokenCheck: ${apiBearerTokenCheck}; "
 
@@ -272,8 +272,8 @@ fi
 computerRecoveryOSPasswordRaw=$(/usr/bin/curl -s "${apiURL}api/v1/computers-inventory/${jssID}/view-recovery-lock-password" -H "Authorization: Bearer ${apiBearerToken}")
 
 computerRecoveryOSPassword=$(getJsonValue "$computerRecoveryOSPasswordRaw" 'recoveryLockPassword')
-
-computerRecoveryOSPasswordHumanRedable=$(echo ${computerRecoveryOSPassword} | sed 's/.\{4\}/& /g')
+# shellcheck disable=SC2001
+computerRecoveryOSPasswordHumanRedable=$(echo "${computerRecoveryOSPassword}" | sed 's/.\{4\}/& /g')
 
 # scriptResult+="recoveryOS Password: ${computerRecoveryOSPasswordHumanRedable}; "
 
