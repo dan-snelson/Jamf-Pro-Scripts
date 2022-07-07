@@ -9,7 +9,7 @@
 #
 # HISTORY
 #
-#   Version 1.0, 8-Dec-2014, Dan K. Snelson (@dan-snelson) (@dan-snelson)
+#   Version 1.0, 8-Dec-2014, Dan K. Snelson (@dan-snelson)
 #       Original version
 #   Version 1.1, 8-Jun-2015, Dan K. Snelson (@dan-snelson)
 #       See: https://jamfnation.jamfsoftware.com/discussion.html?id=14701
