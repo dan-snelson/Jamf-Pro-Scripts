@@ -44,7 +44,7 @@ if [[ "${4}" != "" ]] && [[ "${subEstate}" == "" ]]; then
     subEstate="${4}"
     scriptResult+="Using \"${subEstate}\" as the Sophos Central Sub-Estate; "
 else
-    subEstate="Workforce"
+    subEstate="Sub-Estate 3"
     scriptResult+="Parameter 4 is blank; using \"${subEstate}\" as the Sophos Central Sub-Estate; "
 fi
 
