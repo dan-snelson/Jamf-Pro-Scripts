@@ -10,9 +10,9 @@
 #
 # HISTORY
 #
-# Version 1.0, 08-Nov-2017, Dan K. Snelson (@dan-snelson)
+# Version 1.0.0, 08-Nov-2017, Dan K. Snelson (@dan-snelson)
 #   Original version
-# Version 1.1, 02-Jul-2022, Dan K. Snelson (@dan-snelson)
+# Version 1.0.1, 02-Jul-2022, Dan K. Snelson (@dan-snelson)
 #   Updates for public GitHub release
 #
 ####################################################################################################
@@ -25,7 +25,7 @@
 #
 ####################################################################################################
 
-scriptVersion="1.1"
+scriptVersion="1.0.1"
 scriptResult="Version ${scriptVersion}; "
 loggedInUser=$( /bin/echo "show State:/Users/ConsoleUser" | /usr/sbin/scutil | /usr/bin/awk '/Name :/ { print $3 }' )
 loggedInUserID=$( /usr/bin/id -u "${loggedInUser}" )

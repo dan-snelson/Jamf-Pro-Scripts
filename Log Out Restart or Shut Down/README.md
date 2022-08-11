@@ -1,4 +1,4 @@
-# Log Out, Restart or Shutdown
+# Log Out, Restart or Shutd Down
 
 > Enhance your Jamf Pro policies with six granular log out, restart or shut down options
 > 
