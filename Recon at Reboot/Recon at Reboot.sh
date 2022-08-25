@@ -3,121 +3,275 @@
 #
 # ABOUT
 #
-#	Creates a Launch Daemon to run a Recon at next Reboot
+#   Creates a self-destructing LaunchDaemon and script to run a Recon
+#   at next Reboot (after confirming your Jamf Pro server is available)
 #
 ####################################################################################################
 #
 # HISTORY
 #
-#	Version 1.0, 10-Nov-2016, Dan K. Snelson
+# Version 1.0.0, 10-Nov-2016, Dan K. Snelson (@dan-snelson)
+#   Original version
+#
+# Version 1.0.1, 12-Aug-2022, Dan K. Snelson (@dan-snelson)
+#   Added check for Jamf Pro server connection
 #
 ####################################################################################################
-# Import client-side functions
-# See: https://github.com/dan-snelson/Jamf-Pro-Scripts/tree/master/Client-side%20Functions
-source /path/to/client-side/functions.sh
+
+
+
+####################################################################################################
+#
+# Variables
+#
 ####################################################################################################
 
-# Variables
-plistDomain="com.company.division"										# Hard-coded domain name (i.e., "com.company.division")
-plistLabel="reconAtReboot"														# Unique label for this plist (i.e., "reconAtReboot")
-plistLabel="$plistDomain.$plistLabel"									# Prepend domain to label
-scriptPath="/usr/local/companyname/reconAtReboot.sh"
-
-ScriptLog "##############################"
-ScriptLog "### Recon at Reboot Create ###"
-ScriptLog "##############################"
+scriptVersion="1.0.1"
+plistDomain="org.churchofjesuschrist"       # Hard-coded domain name
+plistLabel="reconAtReboot"                  # Unique label for this plist
+plistLabel="$plistDomain.$plistLabel"       # Prepend domain to label
+timestamp=$( /bin/date '+%Y-%m-%d-%H%M%S' ) # Used in log file
 
 
+
+####################################################################################################
+#
+# Program
+#
+####################################################################################################
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Logging preamble
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+echo "Recon at Reboot (${scriptVersion})"
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Create launchd plist to call a shell script
-ScriptLog "* Create the LaunchDaemon ..."
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+echo "Create the LaunchDaemon ..."
 
 /bin/echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
 <plist version=\"1.0\">
-	<dict>
-		<key>Label</key>
-		<string>${plistLabel}</string>
-		<key>ProgramArguments</key>
-		<array>
-			<string>sh</string>
-			<string>${scriptPath}</string>
-		</array>
-		<key>RunAtLoad</key>
-		<true/>
-	</dict>
-</plist>" > /Library/LaunchDaemons/${plistLabel}.plist
+    <dict>
+        <key>Label</key>
+        <string>${plistLabel}</string>
+        <key>ProgramArguments</key>
+        <array>
+            <string>/bin/sh</string>
+            <string>/private/var/tmp/reconAtReboot.bash</string>
+        </array>
+        <key>RunAtLoad</key>
+        <true/>
+    </dict>
+</plist>" > /Library/LaunchDaemons/$plistLabel.plist
 
 
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Set the permission on the file
-ScriptLog "* Set LaunchDaemon file permissions ..."
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-/usr/sbin/chown root:wheel /Library/LaunchDaemons/${plistLabel}.plist
-/bin/chmod 644 /Library/LaunchDaemons/${plistLabel}.plist
-/bin/chmod +x /Library/LaunchDaemons/${plistLabel}.plist
+echo "Set LaunchDaemon file permissions ..."
+
+/usr/sbin/chown root:wheel /Library/LaunchDaemons/$plistLabel.plist
+/bin/chmod 644 /Library/LaunchDaemons/$plistLabel.plist
+/bin/chmod +x /Library/LaunchDaemons/$plistLabel.plist
 
 
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Create reboot script
-ScriptLog "* Create the script ..."
-/bin/echo "#!/bin/sh
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+echo "Create the script ..."
+
+cat << '==endOfScript==' > /private/var/tmp/reconAtReboot.bash
+#!/bin/bash
 ####################################################################################################
 #
 # ABOUT
 #
-#	Recon at Reboot
+#    Recon at Reboot
 #
 ####################################################################################################
 #
 # HISTORY
 #
-#	Version 1.0, 10-Nov-2016, Dan K. Snelson
-#	Version 1.1, 08-Nov-2017, Dan K. Snelson
-#		Quit Self Service
+# Version 1.0.0, 10-Nov-2016, Dan K. Snelson
+#   Original version
+#
+# Version 1.0.1, 12-Aug-2022, Dan K. Snelson (@dan-snelson)
+#   Added check for Jamf Pro server connection
 #
 ####################################################################################################
-# Import client-side functions
-# See: https://github.com/dan-snelson/Jamf-Pro-Scripts/tree/master/Client-side%20Functions
-source /path/to/client-side/functions.sh
+
+
+
+####################################################################################################
+#
+# Variables
+#
 ####################################################################################################
 
+scriptVersion="1.0.1"
+plistDomain="org.churchofjesuschrist"       # Hard-coded domain name
+plistLabel="reconAtReboot"                  # Unique label for this plist
+plistLabel="$plistDomain.$plistLabel"       # Prepend domain to label
+timestamp=$( /bin/date '+%Y-%m-%d-%H%M%S' ) # Used in log file
+scriptResult=""
 
-ScriptLog \"### Recon at Reboot ###\"
 
-ScriptLog \" \" # Blank line for readability
+####################################################################################################
+#
+# Functions
+#
+####################################################################################################
 
-# Sleeping for 25 seconds for auto-launched applications to start
-ScriptLog \"* Pausing Recon at Reboot for 25 seconds for auto-launched applications to start ...\"
-/bin/sleep 25
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Check for a Jamf Pro server connection
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-# Quit Self Service
-ScriptLog \"Quit Self Service\" # Self Service may have been running when the computer was restarted
-/usr/bin/pkill -l -U \"`/usr/bin/stat -f%Su /dev/console`\" \"Self Service\"
+jssConnectionStatus () {
 
-# Sleeping for 10 minutes (600 seconds) to give Wi-Fi time to come online.
-ScriptLog \"* Pausing Recon at Reboot for 10 minutes to allow Wi-Fi and DNS to come online ...\"
-/bin/sleep 600
-ScriptLog \"* Resuming Recon at Reboot ...\"
+    scriptResult+="Check for Jamf Pro server connection; "
 
-ScriptLog \"* Updating inventory ...\"
-/usr/local/bin/jamf recon
+    unset jssStatus
+    jssStatus=$( /usr/local/bin/jamf checkJSSConnection 2>&1 | /usr/bin/tr -d '\n' )
 
+    case "${jssStatus}" in
+
+        *"The JSS is available."        )   jssAvailable="yes" ;;
+        *"No such file or directory"    )   jssAvailable="not installed" ;;
+        *                               )   jssAvailable="unknown" ;;
+
+    esac
+
+}
+
+
+
+####################################################################################################
+#
+# Program
+#
+####################################################################################################
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Logging preamble
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+echo "Starting Recon at Reboot (${scriptVersion}) at $timestamp" >> /private/var/tmp/$plistLabel.log
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Hard-coded sleep of 25 seconds for auto-launched applications to start
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+sleep "25"
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Check for a Jamf Pro server connection
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+jssConnectionStatus
+
+counter=1
+
+until [[ "${jssAvailable}" == "yes" ]] || [[ "${counter}" -gt "10" ]]; do
+    scriptResult+="Check ${counter} of 10: Jamf Pro server NOT reachable; waiting to re-check; "
+    sleep "30"
+    jssConnectionStatus
+    ((counter++))
+done
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# If Jamf Pro server is available, update inventory
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+if [[ "${jssAvailable}" == "yes" ]]; then
+
+    echo "Jamf Pro server is available, proceeding; " >> /private/var/tmp/$plistLabel.log
+
+    scriptResult+="Resuming Recon at Reboot; "
+
+    scriptResult+="Updating inventory; "
+
+    /usr/local/bin/jamf recon
+
+else
+
+    scriptResult+="Jamf Pro server is NOT available; exiting."
+
+fi
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Delete launchd plist
-ScriptLog \"* Delete $plistLabel.plist ...\"
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+scriptResult+="Delete $plistLabel.plist; "
 /bin/rm -fv /Library/LaunchDaemons/$plistLabel.plist
 
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Delete script
-ScriptLog \"* Delete script ...\"
-/bin/rm -fv ${scriptPath}
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-exit 0" > ${scriptPath}
+scriptResult+="Delete script; "
+/bin/rm -fv /private/var/tmp/reconAtReboot.bash
 
-# Set the permission on the file
-ScriptLog "* Set script file permissions ..."
-/usr/sbin/chown root:wheel ${scriptPath}
-/bin/chmod 644 ${scriptPath}
-/bin/chmod +x ${scriptPath}
 
-jssLog "* LaunchDaemon and Script created."
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Exit
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+scriptResult+="End-of-line."
+
+echo "${scriptResult}" >> /private/var/tmp/$plistLabel.log
+
+exit 0
+==endOfScript==
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Set the permission on the script
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+echo "Set script file permissions ..."
+/usr/sbin/chown root:wheel /private/var/tmp/reconAtReboot.bash
+/bin/chmod 644 /private/var/tmp/reconAtReboot.bash
+/bin/chmod +x /private/var/tmp/reconAtReboot.bash
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Create Log File
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+echo "Create Log File at /private/var/tmp/$plistLabel.log ..."
+touch /private/var/tmp/$plistLabel.log
+echo "Created $plistLabel.log on $timestamp" > /private/var/tmp/$plistLabel.log
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Exit
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+echo "LaunchDaemon and Script created."
 
 exit 0
