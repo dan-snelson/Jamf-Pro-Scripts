@@ -165,6 +165,7 @@ case "${windowType}" in
         sleep "${fullScreenTimeout}"
         killall -v LockScreen
         killall -v jamfHelper
+        updateScriptLog "Open ${action} ..."
         su - "${loggedInUser}" -c "/usr/bin/open '${action}'"
         ;;
     * )
