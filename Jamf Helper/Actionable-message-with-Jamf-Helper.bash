@@ -3,18 +3,18 @@
 #
 # ABOUT
 #
-#   Display Message with Jamf Helper and Action
-#   See: /Library/Application\ Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfHelper -help
+#   Actionable messages with Jamf Helper
+#   See: https://snelson.us/2023/01/jamf-helper/
 #
 ####################################################################################################
 #
 # HISTORY
 #
-#   Version 1.0, 05-Nov-2014, Dan K. Snelson, Original
-#   Version 1.1, 15-Nov-2014, Dan K. Snelson, Added logging
-#   Version 1.2, 14-Oct-2016, Dan K. Snelson, Added action to open paramter 10
-#   Version 1.3, 06-May-2022, Dan K. Snelson, Check for and exit if OS is greater than macOS Big Sur 11
-#   Version 1.4, 17-Jan-2023, Dan K. Snelson, Added timeout for full screen mode
+#   Version 1.0.0, 05-Nov-2014, Dan K. Snelson, Original
+#   Version 1.1.0, 15-Nov-2014, Dan K. Snelson, Added logging
+#   Version 1.2.0, 14-Oct-2016, Dan K. Snelson, Added action to open paramter 10
+#   Version 1.3.0, 06-May-2022, Dan K. Snelson, Check for and exit if OS is greater than macOS Big Sur 11
+#   Version 1.4.0, 18-Jan-2023, Dan K. Snelson, Added timeout for full screen mode
 #
 ####################################################################################################
 
