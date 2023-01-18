@@ -73,7 +73,7 @@ fi
 
 scriptVersion="1.4.0"
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin/
-scriptLog="/var/log/org.churchofjesuschrist.ics.log"
+scriptLog="/var/tmp/org.churchofjesuschrist.log"
 JH="/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfHelper"
 fullScreenTimeout="30"                                                                   # Number of seconds for full-screen messages to display
 windowType="${4:-"hud"}"                                                                 # [ hud | utility | full screen ]
