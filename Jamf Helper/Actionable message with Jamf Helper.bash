@@ -83,7 +83,7 @@ heading="${7:-"Heading [Parameter 7]"}"                                         
 description="${8:-"Description [Parameter 8] goes here, which can be as long as needed.  'fullScreenTimeout' is currently set to '$fullScreenTimeout' seconds"}"    # Sets the main contents of the window to the specified string
 button1="${9:-"Button1 [P9]"}"                                                           # Creates a default button with the specified label
 button2="${10:-"Button2 [P10]"}"                                                         # Creates a second button with the specified label
-action="${11:-"/Applications/Safari.app"}"                                               # Action (i.e., 'open ...')
+action="${11:-"/System/Applications/Utilities/Digital Color Meter.app"}"                 # Action (i.e., 'open ...')
 
 
 
