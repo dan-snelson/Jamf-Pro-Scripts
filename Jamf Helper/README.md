@@ -13,4 +13,4 @@ With only double-digit stragglers still running macOS Catalina, a fresh deployme
 [Continue reading …](https://snelson.us/2023/01/jamf-helper)
 
 ## Script
-- [Actionable messages with Jamf Helper.bash](Display%20Message%20with%20Jamf%20Helper.bash)
+- [Actionable-message-with-Jamf-Helper.bash](Actionable-message-with-Jamf-Helper.bash)
