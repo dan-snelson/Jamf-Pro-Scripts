@@ -17,8 +17,7 @@ Having previously created [Recon at Reboot](https://snelson.us/2022/08/recon-at-
 
 Here's a pair of scripts which will run any in-scope Jamf Pro policy — by trigger name or ID — when the computer is rebooted (or, via Self Service, when the user next logs in).
 
-[Continue reading …](https://snelson.us/2023/04/trigger-policy-at-login-or-reboot)
-
+[Continue reading …](https://snelson.us/2023/04/trigger-jamf-pro-policy-at-login-or-reboot-0-0-2/)
 
 ### Scripts
 - [Trigger Policy at Login or Reboot - Create.bash](Trigger%20Policy%20at%20Login%20or%20Reboot%20-%20Create.bash)

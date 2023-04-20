@@ -4,7 +4,7 @@
 # ABOUT
 #
 #   Delete the Jamf Pro Policy Trigger (for restart) or ID (for login) after computer reboot
-#   https://snelson.us/2023/04/trigger-policy-at-login-or-reboot/
+#   https://snelson.us/2023/04/trigger-jamf-pro-policy-at-login-or-reboot-0-0-2/
 #
 ####################################################################################################
 #
