@@ -36,6 +36,9 @@
 #   - LaunchDaemon modifications
 #   - Logging modifications
 #
+#   Version 0.0.4, 26-Jan-2024, Dan K. Snelson (@dan-snelson)
+#   - Conditional LaunchDaemon unloading (to avoid "Boot-out failed: 5: Input/output error")
+#
 ####################################################################################################
 
 
@@ -70,7 +73,7 @@ debugMode="${5:-"verbose"}"
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Script Version
-scriptVersion="0.0.3"
+scriptVersion="0.0.4"
 
 # Organization's Reverse Domain Name Notation (i.e., com.company.division)
 reverseDomainNameNotation="org.churchofjesuschrist"
@@ -474,8 +477,14 @@ if [[ -f "${launchDaemonPath}" ]]; then
 
     logComment "LaunchDaemon '${launchDaemonPath}' exists"
 
-    logComment "Unload LaunchDaemon …"
-    launchctl bootout system "${launchDaemonPath}"
+    launchDaemonStatus
+
+    if [[ -n "${launchDaemonStatus}" ]]; then
+
+        logComment "Unload LaunchDaemon …"
+        launchctl bootout system "${launchDaemonPath}"
+
+    fi
 
     logComment "Load LaunchDaemon …"
     launchctl bootstrap system "${launchDaemonPath}"

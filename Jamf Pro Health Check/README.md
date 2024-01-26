@@ -1,4 +1,4 @@
-# Jamf Pro Health Check (0.0.3)
+# Jamf Pro Health Check (0.0.4)
 
 ## Overview
 
