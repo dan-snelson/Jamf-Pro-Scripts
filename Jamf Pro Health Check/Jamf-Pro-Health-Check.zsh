@@ -32,6 +32,10 @@
 #   Version 0.0.2, 26-Jan-2024, Dan K. Snelson (@dan-snelson)
 #   - LaunchDaemon modifications
 #
+#   Version 0.0.3, 26-Jan-2024, Dan K. Snelson (@dan-snelson)
+#   - LaunchDaemon modifications
+#   - Logging modifications
+#
 ####################################################################################################
 
 
@@ -66,7 +70,7 @@ debugMode="${5:-"verbose"}"
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Script Version
-scriptVersion="0.0.2"
+scriptVersion="0.0.3"
 
 # Organization's Reverse Domain Name Notation (i.e., com.company.division)
 reverseDomainNameNotation="org.churchofjesuschrist"
@@ -198,7 +202,7 @@ function quitOut(){
 
 function writeHealthyPlistValue() {
 
-    notice "Write Healthy Plist Value: \"${key}\" \"${healthyValue}\" "
+    info "Write Healthy Plist Value: \"${key}\" \"${healthyValue}\" "
     /usr/bin/defaults write "${plistFilepath}" "${key}" -string "${healthyValue}"
 
 }
@@ -211,7 +215,7 @@ function writeHealthyPlistValue() {
 
 function writeUnhealthyPlistValue() {
 
-    notice "Write Healthy Plist Value: '${key}' '${unhealthyValue}'"
+    info "Write Healthy Plist Value: '${key}' '${unhealthyValue}'"
     defaults write "${plistFilepath}" "${key}" -string "${unhealthyValue}"
 
 }
@@ -224,9 +228,9 @@ function writeUnhealthyPlistValue() {
 
 function readPlistValue() {
 
-    notice "Read Plist Value: '${key}'"
+    info "Read Plist Value: '${key}'"
     writtenValue=$( defaults read "${plistFilepath}" "${key}" 2>&1 )
-    info "'${key}' is set to '${writtenValue}'"
+    logComment "'${key}' is set to '${writtenValue}'"
 
 }
 
@@ -238,7 +242,7 @@ function readPlistValue() {
 
 function createUnhealthyScript() {
 
-    notice "Create 'Unhealthy' Script: ${organizationDirectory}/${organizationScriptName}-unhealthy.zsh"
+    info "Create 'Unhealthy' Script: ${organizationDirectory}/${organizationScriptName}-unhealthy.zsh"
 
     # The following creates a script that writes the "unhealthy" value to the client-side .plist. 
     # (Note: Leave a full return at the end of the content before the last "ENDOFUNHEALTHYSCRIPT" line.)
@@ -277,7 +281,7 @@ ENDOFUNHEALTHYSCRIPT
 
 function createLaunchDaemon() {
 
-    notice "Create LaunchDaemon"
+    info "Create LaunchDaemon"
 
     # The following creates the LaunchDaemon file which executes the "unhealthy" script
     # (Note: Leave a full return at the end of the content before the last "ENDOFLAUNCHDAEMON" line.)
@@ -322,8 +326,9 @@ ENDOFLAUNCHDAEMON
     chmod 644 "${launchDaemonPath}"
     chown root:wheel "${launchDaemonPath}"
 
-    updateScriptLog "Loading '${launchDaemonName}' …"
-    launchctl load "${launchDaemonPath}"  # Note: Loading will immediately execute the "unhealthy" script
+    logComment "Loading '${launchDaemonName}' …"
+    launchctl bootstrap system "${launchDaemonPath}"
+    launchctl start "${launchDaemonPath}" # Note: Loading will immediately execute the "unhealthy" script
 
 }
 
@@ -335,7 +340,7 @@ ENDOFLAUNCHDAEMON
 
 function launchDaemonStatus() {
 
-    notice "LaunchDaemon Status"
+    info "LaunchDaemon Status"
     
     launchDaemonStatus=$( launchctl list | grep "${launchDaemonName}" )
 
@@ -434,7 +439,7 @@ preFlight "Complete!"
 # Script Validation / Creation
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-notice "Validating Script"
+notice "*** VALIDATING SCRIPT ***"
 
 logComment "Checking for Unhealthy script '${organizationDirectory}/${organizationScriptName}-unhealthy.zsh' …"
 
@@ -461,14 +466,25 @@ fi
 # LaunchDaemon Validation / Creation
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-notice "Validating LaunchDaemon"
+notice "*** VALIDATING LAUNCHDAEMON ***"
 
 logComment "Checking for LaunchDaemon '${launchDaemonPath}' …"
 
 if [[ -f "${launchDaemonPath}" ]]; then
 
     logComment "LaunchDaemon '${launchDaemonPath}' exists"
-    launchctl load "${launchDaemonPath}"  # Note: Loading will immediately execute the "unhealthy" script
+
+    logComment "Unload LaunchDaemon …"
+    launchctl bootout system "${launchDaemonPath}"
+
+    logComment "Load LaunchDaemon …"
+    launchctl bootstrap system "${launchDaemonPath}"
+    launchctl start "${launchDaemonPath}" # Note: Loading will immediately execute the "unhealthy" script
+
+    launchDaemonStatus
+
+    readPlistValue
+
     writeHealthyPlistValue
 
 else
@@ -484,6 +500,8 @@ fi
 # Status Checks
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+notice "*** STATUS CHECKS ***"
+
 launchDaemonStatus
 
 readPlistValue
@@ -494,6 +512,6 @@ readPlistValue
 # Exit
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-notice "See ya!"
+notice "*** Thank you! ***"
 
 exit 0
