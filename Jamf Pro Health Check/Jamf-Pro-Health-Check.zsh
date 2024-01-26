@@ -29,6 +29,9 @@
 #       - bigmacadmin
 #       - drtaru
 #
+#   Version 0.0.2, 26-Jan-2024, Dan K. Snelson (@dan-snelson)
+#   - LaunchDaemon modifications
+#
 ####################################################################################################
 
 
@@ -63,7 +66,7 @@ debugMode="${5:-"verbose"}"
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Script Version
-scriptVersion="0.0.1"
+scriptVersion="0.0.2"
 
 # Organization's Reverse Domain Name Notation (i.e., com.company.division)
 reverseDomainNameNotation="org.churchofjesuschrist"
@@ -277,7 +280,7 @@ function createLaunchDaemon() {
     notice "Create LaunchDaemon"
 
     # The following creates the LaunchDaemon file which executes the "unhealthy" script
-    # Leave a full return at the end of the content before the last "ENDOFLAUNCHDAEMON" line.
+    # (Note: Leave a full return at the end of the content before the last "ENDOFLAUNCHDAEMON" line.)
 
 logComment "Creating '${launchDaemonPath}' …"
 
@@ -287,28 +290,28 @@ cat <<ENDOFLAUNCHDAEMON
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>Label</key>
-	<string>${launchDaemonName}</string>
-	<key>UserName</key>
-	<string>root</string>
-	<key>ProgramArguments</key>
-	<array>
-		<string>/bin/zsh</string>
-		<string>${organizationDirectory}/${organizationScriptName}-unhealthy.zsh</string>
-	</array>
-	<key>RunAtLoad</key>
-	<true/>
-	<key>StartCalendarInterval</key>
-	<dict>
-    	<key>Hour</key>
-    	<integer>0</integer>
-    	<key>Minute</key>
-    	<integer>1</integer>
-	</dict>
-	<key>StandardErrorPath</key>
-	<string>${scriptLog}</string>
-	<key>StandardOutPath</key>
-	<string>${scriptLog}</string>
+    <key>Label</key>
+    <string>${launchDaemonName}</string>
+    <key>UserName</key>
+    <string>root</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/zsh</string>
+        <string>${organizationDirectory}/${organizationScriptName}-unhealthy.zsh</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>0</integer>
+        <key>Minute</key>
+        <integer>1</integer>
+    </dict>
+    <key>StandardErrorPath</key>
+    <string>${scriptLog}</string>
+    <key>StandardOutPath</key>
+    <string>${scriptLog}</string>
 </dict>
 </plist>
 
@@ -320,9 +323,11 @@ ENDOFLAUNCHDAEMON
     chown root:wheel "${launchDaemonPath}"
 
     updateScriptLog "Loading '${launchDaemonName}' …"
-    # launchctl load "${launchDaemonPath}"  # Use with caution, as loading will immediately execute the "unhealthy" script
+    launchctl load "${launchDaemonPath}"  # Note: Loading will immediately execute the "unhealthy" script
 
 }
+
+
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # LaunchDaemon Status
@@ -435,7 +440,7 @@ logComment "Checking for Unhealthy script '${organizationDirectory}/${organizati
 
 if [[ -f "${organizationDirectory}/${organizationScriptName}-unhealthy.zsh" ]]; then
 
-    logComment "Unhealthy script '"${organizationDirectory}/${organizationScriptName}-unhealthy.zsh"' exists; proceeding …"
+    logComment "Unhealthy script '"${organizationDirectory}/${organizationScriptName}-unhealthy.zsh"' exists"
     writeHealthyPlistValue
     readPlistValue
 
@@ -462,12 +467,14 @@ logComment "Checking for LaunchDaemon '${launchDaemonPath}' …"
 
 if [[ -f "${launchDaemonPath}" ]]; then
 
-    logComment "LaunchDaemon '${launchDaemonPath}' exists; proceeding …"
-    launchDaemonStatus
+    logComment "LaunchDaemon '${launchDaemonPath}' exists"
+    launchctl load "${launchDaemonPath}"  # Note: Loading will immediately execute the "unhealthy" script
+    writeHealthyPlistValue
 
 else
 
     createLaunchDaemon
+    writeHealthyPlistValue
 
 fi
 
@@ -487,6 +494,6 @@ readPlistValue
 # Exit
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-notice "Goodbye!"
+notice "See ya!"
 
 exit 0
