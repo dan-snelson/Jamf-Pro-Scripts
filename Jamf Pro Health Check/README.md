@@ -1,7 +1,7 @@
 <!-- markdownlint-disable-next-line first-line-heading no-inline-html -->
 [<img align="left" alt="Jamf Pro Health Check" src="images/jphc_icon.png" width="100" />](https://snelson.us/jphc)
   
-# Jamf Pro Health Check (0.0.5)  
+# [Jamf Pro Health Check (0.0.5)](https://snelson.us/jphc)
 <br>
 
 ## Overview
