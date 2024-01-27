@@ -25,9 +25,9 @@
 #
 #   Version 0.0.1, 25-Jan-2024, Dan K. Snelson (@dan-snelson)
 #   - Original version, with code and inspiration from:
-#       - robjschroeder
-#       - bigmacadmin
-#       - drtaru
+#       - [robjschroeder](https://github.com/robjschroeder)
+#       - [bigmacadmin](https://github.com/bigmacadmin)
+#       - [drtaru](https://github.com/drtaru)
 #
 #   Version 0.0.2, 26-Jan-2024, Dan K. Snelson (@dan-snelson)
 #   - LaunchDaemon modifications
@@ -55,8 +55,8 @@
 
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 
-# Execution Date & Time
-timestamp="$( date '+%Y-%m-%d-%H%M%S' )"
+# Script Version
+scriptVersion="0.0.5"
 
 
 
@@ -69,15 +69,12 @@ scriptLog="${4:-"/var/log/org.churchofjesuschrist.log"}"
 
 # Parameter 5: Configuration Files to Reset (i.e., None (blank) | All | LaunchDaemon | Script | Uninstall)
 resetConfiguration="${5:-""}"
- 
+
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Organization Variables
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-# Script Version
-scriptVersion="0.0.5"
 
 # Organization's Reverse Domain Name Notation (i.e., com.company.division)
 reverseDomainNameNotation="org.churchofjesuschrist"
