@@ -1,4 +1,8 @@
-# Jamf Pro Health Check (0.0.4)
+<!-- markdownlint-disable-next-line first-line-heading no-inline-html -->
+[<img align="left" alt="Jamf Pro Health Check" src="images/jphc_icon.png" width="100" />](https://snelson.us/jphc)
+  
+# Jamf Pro Health Check (0.0.5)  
+<br>
 
 ## Overview
 
@@ -20,18 +24,20 @@
 1. Test locally (in an elevated Terminal session), replacing the following variable names with the actual values from your customized script:
     - Check the value of the client-side `.plist`
         - `defaults read ${plistFilepath} "${key}"`
-    - Remove the following files between each test-run
-        - `rm -v ${scriptLog}`
-        - `rm -v ${plistFilepath}`
-        - `rm -v ${organizationDirectory}/${organizationScriptName}-unhealthy.zsh`
-    - Unload / load the LaunchDaemon
-        - `launchctl unload ${launchDaemonPath}`
-        - `launchctl load ${launchDaemonPath}`
+    - Set Configuration Files to Reset — `resetConfiguration` — to the desired option during testing
+        - None (blank)
+        - `All`
+        - `LaunchDaemon`
+        - `Script`
+        - `Uninstall`
 1. Upload the [Jamf-Pro-Health-Check-EA.zsh](Jamf-Pro-Health-Check-EA.zsh) Extension Attribute to your Jamf Pro server
-1. Upload the [Jamf-Pro-Health-Check.zsh](Jamf-Pro-Health-Check.zsh) script to your Jamf Pro server
-1. Add the script to your
-    - Daily inventory update policy
-    - Self Service inventory update policy
+1. Upload the [Jamf-Pro-Health-Check.zsh](Jamf-Pro-Health-Check.zsh) script to your Jamf Pro server, using the following Script Parameter Labels:
+    - **Parameter 4:** `Script Log Location [ /var/log/org.churchofjesuschrist.log ] (i.e., Your organization's default location for client-side logs)`
+    - **Parameter 5:** `Configuration Files to Reset (i.e., None (blank) | All | LaunchDaemon | Script | Uninstall )`
+    ![Script Parameter Labels](images/jphc_script_parameter_labels.png)
+1. Add the script to your inventory-related policies:
+    - Daily inventory update
+    - Self Service inventory update
 
 ---
 

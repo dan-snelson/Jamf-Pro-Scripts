@@ -39,6 +39,10 @@
 #   Version 0.0.4, 26-Jan-2024, Dan K. Snelson (@dan-snelson)
 #   - Conditional LaunchDaemon unloading (to avoid "Boot-out failed: 5: Input/output error")
 #
+#   Version 0.0.5, 27-Jan-2024, Dan K. Snelson (@dan-snelson)
+#   - Added `resetConfiguration` options: None (blank) | All | LaunchDaemon | Script | Uninstall
+#   - Added logging to "unhealthy" script
+#
 ####################################################################################################
 
 
@@ -63,8 +67,8 @@ timestamp="$( date '+%Y-%m-%d-%H%M%S' )"
 # Parameter 4: Script Log (i.e., Your organization's default location for client-side logs)
 scriptLog="${4:-"/var/log/org.churchofjesuschrist.log"}"
 
-# Parameter 5: Debug Mode [ verbose (default) | true | false ]
-debugMode="${5:-"verbose"}"
+# Parameter 5: Configuration Files to Reset (i.e., None (blank) | All | LaunchDaemon | Script | Uninstall)
+resetConfiguration="${5:-""}"
  
 
 
@@ -73,7 +77,7 @@ debugMode="${5:-"verbose"}"
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Script Version
-scriptVersion="0.0.4"
+scriptVersion="0.0.5"
 
 # Organization's Reverse Domain Name Notation (i.e., com.company.division)
 reverseDomainNameNotation="org.churchofjesuschrist"
@@ -143,7 +147,7 @@ if [[ -n $osVersionExtra ]] && [[ "${osMajorVersion}" -ge 13 ]]; then osVersion=
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 function updateScriptLog() {
-    echo "${humanReadableScriptName} ($scriptVersion): $( date +%Y-%m-%d\ %H:%M:%S ) - ${1}" | tee -a "${scriptLog}"
+    echo "${organizationScriptName} ($scriptVersion): $( date +%Y-%m-%d\ %H:%M:%S ) - ${1}" | tee -a "${scriptLog}"
 }
 
 function preFlight() {
@@ -195,6 +199,106 @@ function fatal() {
 
 function quitOut(){
     updateScriptLog "[QUIT]            ${1}"
+}
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Reset Configuration
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+function resetConfiguration() {
+
+    notice "Reset Configuration: ${1}"
+
+    case ${1} in
+
+        "All" )
+
+            info "Reset All Configuration Files … "
+
+            # Reset LaunchDaemon
+            info "Reset LaunchDaemon … "
+            launchDaemonStatus
+            if [[ -n "${launchDaemonStatus}" ]]; then
+                logComment "Unload '${launchDaemonPath}' … "
+                launchctl bootout system "${launchDaemonPath}"
+                launchDaemonStatus
+            fi
+            logComment "Removing '${launchDaemonPath}' … "
+            rm -f "${launchDaemonPath}" 2>&1
+            logComment "Removed '${launchDaemonPath}'"
+
+            # Reset Script
+            info "Reset Script … "
+            logComment "Removing '${organizationDirectory}/${organizationScriptName}-unhealthy.zsh' … "
+            rm -f "${organizationDirectory}/${organizationScriptName}-unhealthy.zsh"
+            logComment "Removed '${organizationDirectory}/${organizationScriptName}-unhealthy.zsh' "
+            ;;
+
+        "LaunchDaemon" )
+
+            info "Reset LaunchDaemon … "
+            launchDaemonStatus
+            if [[ -n "${launchDaemonStatus}" ]]; then
+                logComment "Unload '${launchDaemonPath}' … "
+                launchctl bootout system "${launchDaemonPath}"
+                launchDaemonStatus
+            fi
+            logComment "Removing '${launchDaemonPath}' … "
+            rm -f "${launchDaemonPath}" 2>&1
+            logComment "Removed '${launchDaemonPath}'"
+            ;;
+
+        "Script" )
+
+            info "Reset Script … "
+            logComment "Removing '${organizationDirectory}/${organizationScriptName}-unhealthy.zsh' … "
+            rm -f "${organizationDirectory}/${organizationScriptName}-unhealthy.zsh"
+            logComment "Removed '${organizationDirectory}/${organizationScriptName}-unhealthy.zsh' "
+            ;;
+
+        "Uninstall" )
+
+            warning "*** UNINSTALLING ${humanReadableScriptName} ***"
+
+            # Uninstall LaunchDaemon
+            info "Uninstall LaunchDaemon … "
+            launchDaemonStatus
+            if [[ -n "${launchDaemonStatus}" ]]; then
+                logComment "Unload '${launchDaemonPath}' … "
+                launchctl bootout system "${launchDaemonPath}"
+                launchDaemonStatus
+            fi
+            logComment "Removing '${launchDaemonPath}' … "
+            rm -f "${launchDaemonPath}" 2>&1
+            logComment "Removed '${launchDaemonPath}'"
+
+            # Uninstall Script
+            info "Uninstall Script … "
+            logComment "Removing '${organizationDirectory}/${organizationScriptName}-unhealthy.zsh' … "
+            rm -f "${organizationDirectory}/${organizationScriptName}-unhealthy.zsh"
+            logComment "Removed '${organizationDirectory}/${organizationScriptName}-unhealthy.zsh' "
+
+            # Uninstall .plist
+            info "Uninstall .plist … "
+            logComment "Removing '${plistFilepath}' … "
+            rm -f "${plistFilepath}"
+            logComment "Removed '${plistFilepath}'"
+
+            # Exit
+            logComment "Uninstalled all ${humanReadableScriptName} configuration files"
+            notice "Thanks for using ${humanReadableScriptName}!"
+            exit 0
+            ;;
+            
+        * )
+
+            warning "None of the expected reset options was entered; don't reset anything"
+            ;;
+
+    esac
+
 }
 
 
@@ -261,7 +365,50 @@ cat <<ENDOFUNHEALTHYSCRIPT
 #
 ####################################################################################################
 
-/usr/bin/defaults write "${plistFilepath}" "${key}" -string "${unhealthyValue}"
+
+
+####################################################################################################
+#
+# Global Variables
+#
+####################################################################################################
+
+export PATH=/usr/bin:/bin:/usr/sbin:/sbin
+
+
+
+
+####################################################################################################
+#
+# Functions
+#
+####################################################################################################
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Client-side Logging
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+function updateScriptLog() {
+    echo "${organizationScriptName}-unhealthy ($scriptVersion): \$( date +%Y-%m-%d\ %H:%M:%S ) - \${1}"
+}
+
+
+####################################################################################################
+#
+# Program
+#
+####################################################################################################
+
+updateScriptLog "\n\n***\n* Jamf Pro Health Check: Write Unhealthy Value\n***\n"
+
+updateScriptLog "Current Status"
+defaults read "${plistFilepath}" "${key}"
+
+updateScriptLog "Change Status"
+defaults write "${plistFilepath}" "${key}" -string "${unhealthyValue}"
+
+updateScriptLog "Updated Status"
+defaults read "${plistFilepath}" "${key}"
 
 exit 0
 
@@ -331,7 +478,7 @@ ENDOFLAUNCHDAEMON
 
     logComment "Loading '${launchDaemonName}' …"
     launchctl bootstrap system "${launchDaemonPath}"
-    launchctl start "${launchDaemonPath}" # Note: Loading will immediately execute the "unhealthy" script
+    launchctl start "${launchDaemonPath}"
 
 }
 
@@ -439,27 +586,26 @@ preFlight "Complete!"
 ####################################################################################################
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Reset Configuration
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+resetConfiguration "${resetConfiguration}"
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Script Validation / Creation
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 notice "*** VALIDATING SCRIPT ***"
 
-logComment "Checking for Unhealthy script '${organizationDirectory}/${organizationScriptName}-unhealthy.zsh' …"
-
 if [[ -f "${organizationDirectory}/${organizationScriptName}-unhealthy.zsh" ]]; then
 
     logComment "Unhealthy script '"${organizationDirectory}/${organizationScriptName}-unhealthy.zsh"' exists"
-    writeHealthyPlistValue
-    readPlistValue
 
 else
 
     createUnhealthyScript
-    logComment "Execute unhealthy script …"
-    eval "${organizationDirectory}/${organizationScriptName}-unhealthy.zsh"
-    readPlistValue
-    writeHealthyPlistValue
-    readPlistValue
 
 fi
 
@@ -475,31 +621,13 @@ logComment "Checking for LaunchDaemon '${launchDaemonPath}' …"
 
 if [[ -f "${launchDaemonPath}" ]]; then
 
-    logComment "LaunchDaemon '${launchDaemonPath}' exists"
+    # logComment "LaunchDaemon '${launchDaemonPath}' exists"
 
     launchDaemonStatus
-
-    if [[ -n "${launchDaemonStatus}" ]]; then
-
-        logComment "Unload LaunchDaemon …"
-        launchctl bootout system "${launchDaemonPath}"
-
-    fi
-
-    logComment "Load LaunchDaemon …"
-    launchctl bootstrap system "${launchDaemonPath}"
-    launchctl start "${launchDaemonPath}" # Note: Loading will immediately execute the "unhealthy" script
-
-    launchDaemonStatus
-
-    readPlistValue
-
-    writeHealthyPlistValue
 
 else
 
     createLaunchDaemon
-    writeHealthyPlistValue
 
 fi
 
@@ -512,6 +640,10 @@ fi
 notice "*** STATUS CHECKS ***"
 
 launchDaemonStatus
+
+sleep 0.8
+
+writeHealthyPlistValue
 
 readPlistValue
 
