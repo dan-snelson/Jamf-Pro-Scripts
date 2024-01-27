@@ -79,10 +79,10 @@ resetConfiguration="${5:-""}"
 # Organization's Reverse Domain Name Notation (i.e., com.company.division)
 reverseDomainNameNotation="org.churchofjesuschrist"
 
-# Script Human-readabale Name
+# Script Human-readable Name
 humanReadableScriptName="Jamf Pro Health Check"
 
-# Organization's Directory (i.e., where the script-generated files reside; must previously exist)
+# Organization's Directory (i.e., where your client-side scripts reside; must previously exist)
 organizationDirectory="/path/to/your/client-side/scripts/"
 
 # Organization's Script Name
