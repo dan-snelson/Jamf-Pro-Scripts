@@ -43,6 +43,9 @@
 #   - Added `resetConfiguration` options: None (blank) | All | LaunchDaemon | Script | Uninstall
 #   - Added logging to "unhealthy" script
 #
+#   Version 0.0.6, 27-Jan-2024, Dan K. Snelson (@dan-snelson)
+#   - Corrected LaunchDaemon loading
+#
 ####################################################################################################
 
 
@@ -56,7 +59,7 @@
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 
 # Script Version
-scriptVersion="0.0.5"
+scriptVersion="0.0.6"
 
 
 
@@ -529,7 +532,7 @@ fi
 # Pre-flight Check: Logging Preamble
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-preFlight "\n\n###\n# $humanReadableScriptName (${scriptVersion})\n# https://snelson.us\n###\n"
+preFlight "\n\n###\n# $humanReadableScriptName (${scriptVersion})\n# https://snelson.us/jphc\n###\n"
 preFlight "Initiating …"
 
 
@@ -618,9 +621,22 @@ logComment "Checking for LaunchDaemon '${launchDaemonPath}' …"
 
 if [[ -f "${launchDaemonPath}" ]]; then
 
-    # logComment "LaunchDaemon '${launchDaemonPath}' exists"
+    logComment "LaunchDaemon '${launchDaemonPath}' exists"
 
     launchDaemonStatus
+
+    if [[ -n "${launchDaemonStatus}" ]]; then
+
+        logComment "${launchDaemonName} IS loaded"
+
+    else
+
+        logComment "Loading '${launchDaemonName}' …"
+        launchctl bootstrap system "${launchDaemonPath}"
+        launchctl start "${launchDaemonPath}"
+        launchDaemonStatus
+
+    fi
 
 else
 
@@ -636,9 +652,10 @@ fi
 
 notice "*** STATUS CHECKS ***"
 
-launchDaemonStatus
+logComment "I/O pause …"
+sleep 1.3
 
-sleep 0.8
+launchDaemonStatus
 
 writeHealthyPlistValue
 
