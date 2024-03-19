@@ -1,4 +1,4 @@
-#!/bin/zsh 
+#!/bin/zsh --no-rcs
 # shellcheck shell=bash
 # shellcheck disable=SC2001
 
@@ -46,6 +46,9 @@
 #   Version 0.0.6, 27-Jan-2024, Dan K. Snelson (@dan-snelson)
 #   - Corrected LaunchDaemon loading
 #
+#   Version 0.0.7, 19-Mar-2024, Dan K. Snelson (@dan-snelson)
+#       Added `--no-rcs` to the `#!/bin/zsh` shebang
+#
 ####################################################################################################
 
 
@@ -59,7 +62,7 @@
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 
 # Script Version
-scriptVersion="0.0.6"
+scriptVersion="0.0.7"
 
 
 

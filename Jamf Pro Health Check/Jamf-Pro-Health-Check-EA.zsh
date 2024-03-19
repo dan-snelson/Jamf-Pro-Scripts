@@ -1,4 +1,4 @@
-#!/bin/zsh 
+#!/bin/zsh --no-rcs
 # shellcheck shell=bash
 # shellcheck disable=SC2001
 
@@ -14,6 +14,9 @@
 #
 #   Version 0.0.1, 25-Jan-2024, Dan K. Snelson (@dan-snelson)
 #       Original version
+#
+#   Version 0.0.2, 19-Mar-2024, Dan K. Snelson (@dan-snelson)
+#       Added `--no-rcs` to the `#!/bin/zsh` shebang
 #
 ####################################################################################################
 
@@ -34,10 +37,10 @@ export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Script Version
-scriptVersion="0.0.1"
+scriptVersion="0.0.2"
 
 # Organization's Reverse Domain Name Notation (i.e., com.company.division)
-reverseDomainNameNotation="org.churchofjesuschrist.ics"
+reverseDomainNameNotation="org.churchofjesuschrist"
 
 # Script Human-readabale Name
 humanReadableScriptName="Jamf Pro Health Check"
