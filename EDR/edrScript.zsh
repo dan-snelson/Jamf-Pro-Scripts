@@ -14,6 +14,9 @@
 # Version 0.0.1, 05-Sep-2024, Dan K. Snelson (@dan-snelson)
 #   - Original, proof-of-concept version
 #
+# Version 0.0.2, 17-Sep-2024, Dan K. Snelson (@dan-snelson)
+#   - Code clean-up
+#
 ####################################################################################################
 #
 # Global Variables
@@ -23,28 +26,16 @@
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin/
 
 # Script Version
-scriptVersion="0.0.1"
+scriptVersion="0.0.2"
 
 # Client-side Log
 scriptLog="/var/log/org.test.edr.log"
 
-# Script Modification Timestamp (i.e., $( date '+%Y-%m-%d-%H%M%S' ) )
-scriptModificationTimestamp="2024-09-05-050308"
+# Script Modification Timestamp (i.e., $( date '+%Y-%m-%d-%H%M%S' | tr -d '\n' | pbcopy ) )
+scriptModificationTimestamp="2024-09-17-160718"
 
 # Initialize SECONDS
 SECONDS="0"
-
-
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Jamf Pro Script Parameters
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-# Parameter 4: Operation Mode [ debug | normal | verbose ]
-operationMode="${4:-"verbose"}"
-
-# Parameter 5: "Anticipation" Duration (in seconds)
-anticipationDuration="${5:-"3"}"
 
 
 
@@ -168,7 +159,7 @@ fi
 # Pre-flight Check: Logging Preamble
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-preFlight "\n\n###\n# $humanReadableScriptName (${scriptVersion})\n# Operation Mode: ${operationMode}\n###\n"
+preFlight "\n\n###\n# $humanReadableScriptName (${scriptVersion})\n###\n"
 preFlight "Initiating …"
 
 
@@ -198,10 +189,10 @@ preFlight "Complete!"
 ####################################################################################################
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Proof-of-concept: `jamf about`
+# Proof-of-concept Command Substitution: `jamf about`
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-notice "Command Substitution:"
+notice "Command Substitution"
 eval "/usr/local/bin/jamf about" | tee -a "${scriptLog}"
 
 
