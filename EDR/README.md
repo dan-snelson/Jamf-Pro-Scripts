@@ -1,6 +1,6 @@
 # [EDR Script Runner (0.0.5)](https://snelson.us/)
 
-> A proof-of-concept workflow for securing executing a repository-hosted script
+> A proof-of-concept workflow for securely executing a repository-hosted script
 
 [<img alt="EDR Script Runner" src="images/edrScriptRunner_Hero.png" width="600" />](https://snelson.us/)
 
