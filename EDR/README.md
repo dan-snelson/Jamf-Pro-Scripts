@@ -22,11 +22,9 @@ While EDR tools can excel at running one-off code on a limited number of endpoin
 
 ---
 
-## Implementation
+## Configuration
 
-1. Blah
-1. Blah, blah
-1. Blah, blah, blah
+[Continue reading …](https://snelson.us/2024/09/edr-script-runner-0-0-5/)
 
 ---
 
