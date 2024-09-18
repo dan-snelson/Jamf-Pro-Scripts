@@ -23,6 +23,9 @@
 # Version 0.0.4, 18-Sep-2024, Dan K. Snelson (@dan-snelson)
 #   - Code clean-up
 #
+# Version 0.0.5, 18-Sep-2024, Dan K. Snelson (@dan-snelson)
+#   - Added `checksumSource` Jamf Pro Script Parameter (thanks for the idea, AB!)
+#
 ####################################################################################################
 #
 # Global Variables
@@ -32,7 +35,7 @@
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin/
 
 # Script Version
-scriptVersion="0.0.4"
+scriptVersion="0.0.5"
 
 # Client-side Log
 scriptLog="/var/log/org.test.log"
@@ -62,11 +65,23 @@ orgRepo="https://raw.githubusercontent.com/dan-snelson/Jamf-Pro-Scripts/developm
 # Organization's File
 orgFile="edrScript.zsh"
 
-# Expected Script Checksum
-expectedScriptChecksum=$( curl --location --silent --fail "${orgRepo}/${orgFile%%.*}Hash.txt" )
-
 # Organization's .plist
 orgPlist="/Library/Preferences/org.test.plist"
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Jamf Pro Script Parameters
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+# Parameter 4: Checksum Source [ script (default) | policy ]
+checksumSource="${4:-"script"}"
+
+# Parameter 5: Expected Script Checksum
+case ${checksumSource} in
+    script      )   expectedScriptChecksum=$( curl --location --silent --fail "${orgRepo}/${orgFile%%.*}Hash.txt" ) ;;
+    policy | *  )   expectedScriptChecksum="${5:-"55b9765ed20cd1563382e79d5af7f5505fb6be55488c9b1c7effbfe2b64c8c3b"}" ;;
+esac
 
 
 
@@ -229,7 +244,7 @@ fi
 # Pre-flight Check: Logging Preamble
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-preFlight "\n\n###\n# $humanReadableScriptName (${scriptVersion})\n###\n"
+preFlight "\n\n###\n# $humanReadableScriptName (${scriptVersion})\n# Checksum Source: ${checksumSource}\n###\n"
 preFlight "Initiating …"
 
 
@@ -289,7 +304,7 @@ if [[ "$?" == "0" ]]; then
 
     actualScriptChecksum=$( openssl dgst -sha256 "${tempDirectory}/${orgFile}" | awk -F'= ' '{print $2}' )
     if [[ "${expectedScriptChecksum}" != "${actualScriptChecksum}" ]]; then
-        fatal "Script Checksum Failed; exiting"
+        fatal "SCRIPT CHECKSUM FAILED; EXITING"
     else
         notice "Script Checksum Passed"
         chmod a+x "${tempDirectory}/${orgFile}"
@@ -297,7 +312,7 @@ if [[ "$?" == "0" ]]; then
 
 else
 
-    fatal "Download failed; exiting"
+    fatal "DOWNLOAD FAILED; EXITING"
 
 fi
 
