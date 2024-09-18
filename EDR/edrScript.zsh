@@ -17,6 +17,9 @@
 # Version 0.0.2, 17-Sep-2024, Dan K. Snelson (@dan-snelson)
 #   - Code clean-up
 #
+# Version 0.0.3, 18-Sep-2024, Dan K. Snelson (@dan-snelson)
+#   - Added simple error checking for command substitution
+#
 ####################################################################################################
 #
 # Global Variables
@@ -26,7 +29,7 @@
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin/
 
 # Script Version
-scriptVersion="0.0.2"
+scriptVersion="0.0.3"
 
 # Client-side Log
 scriptLog="/var/log/org.test.edr.log"
@@ -192,8 +195,17 @@ preFlight "Complete!"
 # Proof-of-concept Command Substitution: `jamf about`
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-notice "Command Substitution"
-eval "/usr/local/bin/jamf about" | tee -a "${scriptLog}"
+notice "Proof-of-concept Command Substitution"
+logComment "jamf about"
+
+command=$( /usr/local/bin/jamf about | tee -a "${scriptLog}" )
+
+
+if [[ "$?" == "0" ]]; then
+    logComment "Successful execution"
+else
+    errorOut "Execution error"
+fi
 
 
 
