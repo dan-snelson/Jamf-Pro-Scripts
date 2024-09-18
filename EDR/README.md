@@ -17,7 +17,7 @@ While EDR tools can excel at running one-off code on a limited number of endpoin
 1. An authorized administrator edits [`edrScript.zsh`](edrScript.zsh), generates its hash as [`edrScriptHash.txt`](edrScriptHash.txt), then commits and pushes to a secure repository
     - `openssl dgst -sha256 "edrScript.zsh" | awk -F'= ' '{print $2}' > edrScriptHash.txt`
 1. The script and its hash await client-side execution
-1. The MDM server instructs the client to execute [`edrScriptRunner.zsh`](edrScriptRunner.zsh), which first validates the checksum (provided via [`edrScriptHash.txt`](edrScriptHash.txt) or a via Jamf Pro Script Parameter)
+1. The MDM server instructs the client to execute [`edrScriptRunner.zsh`](edrScriptRunner.zsh), which first validates the checksum (provided via [`edrScriptHash.txt`](edrScriptHash.txt) or via a Jamf Pro Script Parameter)
 1. The script's `scriptModificationTimestamp` variable is compared against the last client-side execution; if different, the script is executed
 
 ---
