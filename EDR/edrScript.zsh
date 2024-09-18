@@ -198,11 +198,11 @@ preFlight "Complete!"
 notice "Proof-of-concept Command Substitution"
 logComment "jamf about"
 
-command=$( /usr/local/bin/jamf about | tee -a "${scriptLog}" )
-
+command=$( /usr/local/bin/jamf about )
 
 if [[ "$?" == "0" ]]; then
     logComment "Successful execution"
+    logComment "jamf about: ${command}"
 else
     errorOut "Execution error"
 fi
