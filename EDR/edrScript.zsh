@@ -35,7 +35,7 @@ scriptVersion="0.0.3"
 scriptLog="/var/log/org.test.edr.log"
 
 # Script Modification Timestamp (i.e., $( date '+%Y-%m-%d-%H%M%S' | tr -d '\n' | pbcopy ) )
-scriptModificationTimestamp="2024-09-17-160718"
+scriptModificationTimestamp="2024-09-18-045533"
 
 # Initialize SECONDS
 SECONDS="0"
