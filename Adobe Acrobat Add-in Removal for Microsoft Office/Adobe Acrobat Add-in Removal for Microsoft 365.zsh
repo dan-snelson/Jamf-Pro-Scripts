@@ -39,7 +39,7 @@
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin/
 
 # Script Version
-scriptVersion="1.0.0rc2"
+scriptVersion="1.0.0rc3"
 
 # Client-side Log
 scriptLog="/var/log/org.churchofjesuschrist.log"
@@ -195,6 +195,7 @@ dialogProgress="$dialogBinary \
 --moveable \
 --position bottomright \
 --ontop \
+--quitkey k \
 --commandfile \"$dialogProgressLog\" "
 
 
@@ -549,7 +550,7 @@ function confirmApplicationStatus() {
 
     if [[ -n "${appStatus}" ]]; then
         updateProgressDialog "icon: ${3}"
-        updateProgressDialog "message: ${2} is currently running.<br><br>Please save open files and quit ${2}."
+        updateProgressDialog "message: Please save open files and quit ${2}."
         updateProgressDialog "progresstext: Waiting for ${loggedInUser} to quit ${2} …"
         updateProgressDialog "activate:"
         while [[ -n "${appStatus}" ]]; do
