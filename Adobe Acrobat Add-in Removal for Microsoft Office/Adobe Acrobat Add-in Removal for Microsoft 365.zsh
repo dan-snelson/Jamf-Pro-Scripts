@@ -28,6 +28,7 @@
 # Version 1.0.0, 19-Sep-2024, Dan K. Snelson (@dan-snelson)
 #   - Updated script to latest standard
 #   - Updated for Microsoft 365 (16.89.24091630) and Adobe Acrobat DC (24.003.20121)
+#   - Updated `swiftDialogMinimumRequiredVersion` to 2.5.2.4777
 #
 ####################################################################################################
 #
@@ -38,7 +39,7 @@
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin/
 
 # Script Version
-scriptVersion="1.0.0rc1"
+scriptVersion="1.0.0rc2"
 
 # Client-side Log
 scriptLog="/var/log/org.churchofjesuschrist.log"
@@ -104,6 +105,9 @@ loggedInUserFirstname=$( echo "$loggedInUserFullname" | sed -E 's/^.*, // ; s/([
 
 # swiftDialog Binary Path
 dialogBinary="/usr/local/bin/dialog"
+
+# This will be set and updated as dependancies on newer features change
+swiftDialogMinimumRequiredVersion="2.5.2.4777"
 
 # Debug Mode Features
 case ${operationMode} in
