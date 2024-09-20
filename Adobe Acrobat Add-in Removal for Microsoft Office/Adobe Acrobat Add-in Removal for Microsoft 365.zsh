@@ -624,7 +624,7 @@ function removePluginUgly() {
         warning "Removing ${loggedInUserHome}${officeStartupFolder}${1} …"
         rm -v "${loggedInUserHome}${officeStartupFolder}${1}"
     else
-        infoComment "${loggedInUserHome}${officeStartupFolder}${1} NOT found"
+        logComment "${loggedInUserHome}${officeStartupFolder}${1} NOT found"
     fi
 
 }
@@ -726,7 +726,7 @@ case ${operationMode} in
 
         notice "${operationMode} Operation Mode"
 
-        infoComment "Create Adobe Acrobat Add-in Removal dialog …"
+        logComment "Create Adobe Acrobat Add-in Removal dialog …"
 
         eval "$dialogWelcome"
 
