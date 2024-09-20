@@ -71,7 +71,7 @@ anticipationDuration="${5:-"1"}"
 # Script Human-readabale Name
 humanReadableScriptName="Adobe Acrobat Add-in Removal for Microsoft 365"
 
-# Organization's Script Name
+# Organization’s Script Name
 organizationScriptName="AAR"
 
 
@@ -103,7 +103,7 @@ loggedInUserFirstname=$( echo "$loggedInUserFullname" | sed -E 's/^.*, // ; s/([
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Dialog binary (and enable swiftDialog's `--verbose` mode with script's operationMode)
+# Dialog binary (and enable swiftDialog’s `--verbose` mode with script’s operationMode)
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # swiftDialog Binary Path
@@ -364,13 +364,13 @@ function quitScript() {
 
     # Remove dialogProgressLog
     if [[ -e ${dialogProgressLog} ]]; then
-        updateScriptLog "Removing ${dialogProgressLog} …"
+        quitOut "Removing ${dialogProgressLog} …"
         rm "${dialogProgressLog}"
     fi
 
     # Remove dialogCompleteLog
     if [[ -e ${dialogCompleteLog} ]]; then
-        updateScriptLog "Removing ${dialogCompleteLog} …"
+        quitOut "Removing ${dialogCompleteLog} …"
         rm "${dialogCompleteLog}"
     fi
 
@@ -445,7 +445,7 @@ function debugRemoval() {
     sleep "${anticipationDuration}"
 
     updateWelcomeDialog "message: + 3. There is no Step 3"
-    updateWelcomeDialog "progresstext: There‘s no Step 3!"
+    updateWelcomeDialog "progresstext: There’s no Step 3!"
     sleep "${anticipationDuration}"
 
     updateWelcomeDialog "icon: SF=checkmark.circle.fill,weight=bold,colour1=#00ff44,colour2=#075c1e"
@@ -582,8 +582,8 @@ function confirmApplicationStatus() {
 function removePlugin() {
 
     updateProgressDialog "icon: ${3}"
-    updateProgressDialog "message: Detecting ${2}'s Acrobat Add-in …"
-    updateProgressDialog "progresstext: Detecting ${2}'s Acrobat Add-in …"
+    updateProgressDialog "message: Detecting ${2}’s Acrobat Add-in …"
+    updateProgressDialog "progresstext: Detecting ${2}’s Acrobat Add-in …"
     updateProgressDialog "progress: increment"
     updateProgressDialog "activate:"
     sleep "${anticipationDuration}"
@@ -591,22 +591,22 @@ function removePlugin() {
     if [[ -e "${loggedInUserHome}${officeStartupFolder}${1}" ]]; then
         notice "Removing ${loggedInUserHome}${officeStartupFolder}${1} …"
         updateProgressDialog "progress: increment"
-        updateProgressDialog "progresstext: Removing ${2}'s Acrobat Add-in …"
+        updateProgressDialog "progresstext: Removing ${2}’s Acrobat Add-in …"
         if [[ "${operationMode}" == "debug" ]]; then
             debug "Faux remove ${loggedInUserHome}${officeStartupFolder}${1} …"
             updateProgressDialog "message: **Faux** remove \`${loggedInUserHome}${officeStartupFolder}${1}\` …"
         else
             rm -v "${loggedInUserHome}${officeStartupFolder}${1}"
-            notice "Removed ${loggedInUserHome}${officeStartupFolder}${1} …"
+            logComment "Removed ${loggedInUserHome}${officeStartupFolder}${1} …"
         fi
-        updateProgressDialog "progresstext: Removed ${2}'s Acrobat Add-in"
+        updateProgressDialog "progresstext: Removed ${2}’s Acrobat Add-in"
         updateProgressDialog "progress: increment"
         sleep "${anticipationDuration}"
         updateProgressDialog "progresstext: Continuing …"
         sleep "${anticipationDuration}"
     else
-        updateProgressDialog "message: ${2}'s Acrobat Add-in NOT found …"
-        updateProgressDialog "progresstext: ${2}'s Acrobat Add-in NOT found …"
+        updateProgressDialog "message: ${2}’s Acrobat Add-in NOT found …"
+        updateProgressDialog "progresstext: ${2}’s Acrobat Add-in NOT found …"
         updateScriptLog "${loggedInUserHome}${officeStartupFolder}${1} NOT found"
         sleep "${anticipationDuration}"
     fi
