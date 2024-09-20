@@ -5,7 +5,7 @@
 #
 # Adobe Acrobat Add-in Removal for Microsoft 365
 #
-# Purpose:   Removes Adobe Acrobat Add-in from Microsoft updateWelcomeDialog.
+# Purpose:   Removes Adobe Acrobat Add-in from Microsoft 365 apps Word, Excel and PowerPoint.
 #            (Designed to be executed via Jamf Pro Self Service.)
 #
 ####################################################################################################
