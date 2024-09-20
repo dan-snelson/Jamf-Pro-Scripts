@@ -39,7 +39,7 @@
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin/
 
 # Script Version
-scriptVersion="1.0.0rc3"
+scriptVersion="1.0.0"
 
 # Client-side Log
 scriptLog="/var/log/org.churchofjesuschrist.log"
@@ -129,7 +129,7 @@ progressSteps="11"
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 title="${humanReadableScriptName} (${scriptVersion})"
-message="**Happy $( date +'%A' ), ${loggedInUserFirstname}!**<br><br>This script removes the Adobe Acrobat Add-in from Microsoft 365.<br><br>![Error 32815](https://raw.githubusercontent.com/dan-snelson/Jamf-Pro-Scripts/master/Adobe%20Acrobat%20Add-in%20Removal%20for%20Microsoft%20Office/images/Error%2032815.png)"
+message="**Happy $( date +'%A' ), ${loggedInUserFirstname}!**<br><br>This script removes the Adobe Acrobat Add-in from Microsoft 365.<br><br>![Excel Error](https://raw.githubusercontent.com/dan-snelson/Jamf-Pro-Scripts/refs/heads/development/Adobe%20Acrobat%20Add-in%20Removal%20for%20Microsoft%20Office/images/Error%20Excel.png)"
 icon="https://ics.services.jamfcloud.com/icon/hash_836bc15ee3a920f0402f19194aa9a5842180534181f53c4fff0ccd1243b5f897"
 # overlayIcon=$( defaults read /Library/Preferences/com.jamfsoftware.jamf.plist self_service_app_path )
 infobox=" "

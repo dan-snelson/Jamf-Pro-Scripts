@@ -2,7 +2,7 @@
 
 > User-friendly Adobe Acrobat Add-in Removal for Microsoft 365
 
-![Adobe Acrobat Add-in Removal for Microsoft Office Screenshot](images/Adobe%20Acrobat%20Add-in%20Removal%20for%20Microsoft%20Office%20Screenshot.png)
+![Adobe Acrobat Add-in Removal for Microsoft 365](images/Acrobat%20Add-in%20Removal%20Hero.png)
 
 ## Background
 
