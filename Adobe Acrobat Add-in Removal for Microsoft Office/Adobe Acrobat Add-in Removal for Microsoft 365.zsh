@@ -57,7 +57,7 @@ SECONDS="0"
 operationMode="${4:-"debug"}"
 
 # Parameter 5: "Anticipation" Duration (in seconds)
-anticipationDuration="${5:-"3"}"
+anticipationDuration="${5:-"1"}"
 
 
 
@@ -463,8 +463,7 @@ function debugRemoval() {
 
 function interactiveRemoval() {
 
-    updateProgressDialog "message: + <br><br>Please wait …"
-    updateProgressDialog "button2: disable"
+    updateProgressDialog "message: Please wait …"
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Prompt user to quit Microsoft Office and Adobe Acrobat apps
@@ -490,9 +489,7 @@ function interactiveRemoval() {
     sleep "${anticipationDuration}"
 
     removePlugin "${excelPlugin}" "Excel" "${excelIcon}"
-
     removePlugin "${powerpointPlugin}" "PowerPoint" "${pointpointIcon}"
-
     removePlugin "${wordPlugin}" "Word" "${wordIcon}"
 
     #notice "Removing ${loggedInUserHome}/Library/Group Containers/UBF8T346G9.Office/MicrosoftRegistrationDB.reg…"
@@ -506,6 +503,7 @@ function interactiveRemoval() {
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 function completeDialog() {
+
     notice "Removed Adobe Acrobat Add-in from Microsoft 365"
     updateProgressDialog "activate:"
     updateProgressDialog "message: Removed Adobe Acrobat Add-in from Microsoft 365."
@@ -515,7 +513,9 @@ function completeDialog() {
     logComment "Elapsed Time: $(printf '%dh:%dm:%ds\n' $((SECONDS/3600)) $((SECONDS%3600/60)) $((SECONDS%60)))"
     sleep "${anticipationDuration}"
     sleep "${anticipationDuration}"
+    sleep "${anticipationDuration}"
     updateProgressDialog "quit:"
+
 }
 
 
@@ -561,8 +561,10 @@ function confirmApplicationStatus() {
         updateProgressDialog "icon: ${icon}"
         updateProgressDialog "message: ${2} no longer running."
         updateProgressDialog "progresstext: Continuing …"
+        sleep "${anticipationDuration}"
     else
         notice "${1} NOT running; proceeding …"
+        sleep "${anticipationDuration}"
     fi
 
 }
@@ -598,11 +600,12 @@ function removePlugin() {
         updateProgressDialog "progress: increment"
         sleep "${anticipationDuration}"
         updateProgressDialog "progresstext: Continuing …"
-        sleep 1
+        sleep "${anticipationDuration}"
     else
         updateProgressDialog "message: ${2}'s Acrobat Add-in NOT found …"
         updateProgressDialog "progresstext: ${2}'s Acrobat Add-in NOT found …"
         updateScriptLog "${loggedInUserHome}${officeStartupFolder}${1} NOT found"
+        sleep "${anticipationDuration}"
     fi
 
     updateProgressDialog "icon: ${icon}"
@@ -618,7 +621,7 @@ function removePlugin() {
 function removePluginUgly() {
 
     if [[ -e "${loggedInUserHome}${officeStartupFolder}${1}" ]]; then
-        notice "Removing ${loggedInUserHome}${officeStartupFolder}${1} …"
+        warning "Removing ${loggedInUserHome}${officeStartupFolder}${1} …"
         rm -v "${loggedInUserHome}${officeStartupFolder}${1}"
     else
         infoComment "${loggedInUserHome}${officeStartupFolder}${1} NOT found"
