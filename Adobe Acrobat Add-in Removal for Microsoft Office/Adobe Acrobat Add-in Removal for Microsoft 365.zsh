@@ -30,6 +30,9 @@
 #   - Updated for Microsoft 365 (16.89.24091630) and Adobe Acrobat DC (24.003.20121)
 #   - Updated `swiftDialogMinimumRequiredVersion` to 2.5.2.4777
 #
+# Version 1.0.1, 20-Sep-2024, Dan K. Snelson (@dan-snelson)
+#   - Logging clean-up
+#
 ####################################################################################################
 #
 # Global Variables
@@ -39,7 +42,7 @@
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin/
 
 # Script Version
-scriptVersion="1.0.0"
+scriptVersion="1.0.1"
 
 # Client-side Log
 scriptLog="/var/log/org.churchofjesuschrist.log"
@@ -554,7 +557,7 @@ function confirmApplicationStatus() {
         updateProgressDialog "progresstext: Waiting for ${loggedInUser} to quit ${2} …"
         updateProgressDialog "activate:"
         while [[ -n "${appStatus}" ]]; do
-            logComment "${1} running; pausing …"
+            logComment "${1} running; waiting for ${loggedInUser} to quit …"
             sleep "${anticipationDuration}"
             appStatus=$( pgrep -x "${1}" )
         done
@@ -593,8 +596,8 @@ function removePlugin() {
             debug "Faux remove ${loggedInUserHome}${officeStartupFolder}${1} …"
             updateProgressDialog "message: **Faux** remove \`${loggedInUserHome}${officeStartupFolder}${1}\` …"
         else
-            notice "Remove ${loggedInUserHome}${officeStartupFolder}${1} …"
             rm -v "${loggedInUserHome}${officeStartupFolder}${1}"
+            notice "Removed ${loggedInUserHome}${officeStartupFolder}${1} …"
         fi
         updateProgressDialog "progresstext: Removed ${2}'s Acrobat Add-in"
         updateProgressDialog "progress: increment"
