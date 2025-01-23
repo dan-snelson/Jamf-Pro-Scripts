@@ -33,6 +33,9 @@
 # Version 1.0.1, 20-Sep-2024, Dan K. Snelson (@dan-snelson)
 #   - Logging clean-up
 #
+# Version 1.0.2, 23-Jan-2025, Dan K. Snelson (@dan-snelson)
+#   - Updates for swiftDialog 2.5.5
+#
 ####################################################################################################
 #
 # Global Variables
@@ -42,7 +45,7 @@
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin/
 
 # Script Version
-scriptVersion="1.0.1"
+scriptVersion="1.0.2"
 
 # Client-side Log
 scriptLog="/var/log/org.churchofjesuschrist.log"
@@ -110,7 +113,7 @@ loggedInUserFirstname=$( echo "$loggedInUserFullname" | sed -E 's/^.*, // ; s/([
 dialogBinary="/usr/local/bin/dialog"
 
 # This will be set and updated as dependancies on newer features change
-swiftDialogMinimumRequiredVersion="2.5.2.4777"
+swiftDialogMinimumRequiredVersion="2.5.5.4802"
 
 # Debug Mode Features
 case ${operationMode} in
@@ -121,6 +124,11 @@ esac
 dialogWelcomeLog=$( mktemp /var/tmp/dialogWelcomeLog.XXXX )
 dialogProgressLog=$( mktemp /var/tmp/dialogProgressLog.XXX )
 dialogCompleteLog=$( mktemp /var/tmp/dialogCompleteLog.XXX )
+
+# Set Permissions on Dialog Command Files
+chmod -vv 644 "${dialogWelcomeLog}" | tee -a "${scriptLog}"
+chmod -vv 644 "${dialogProgressLog}" | tee -a "${scriptLog}"
+chmod -vv 644 "${dialogCompleteLog}" | tee -a "${scriptLog}"
 
 # The total number of steps for the progress bar, plus one (i.e., updateWelcomeDialog "progress: increment")
 progressSteps="11"
