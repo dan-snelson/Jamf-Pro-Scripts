@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 ########################################################################################################################################
 # A script to collect the state of CrowdStrike Falcon (thanks, ZT!)                                                                    #
-# https://github.com/MLBZ521/MacAdmin/blob/master/Jamf%20Pro/Extension%20Attributes/jamf_ea_CrowdStrikeStatus.sh#L466-L476             #
-#                                                                                                                                      #
 # - If CrowdStrike Falcon is not installed, "Not Installed" will be returned.                                                          #
 # - If CrowdStrike Falcon is HAS connected within the number of days specified as `lastConnectedVariance`, "Running" will be returned. #
 # - If CrowdStrike Falcon is has NOT connected within the number of days specified as `lastConnectedVariance`,                         #
@@ -10,6 +8,7 @@
 ########################################################################################################################################
 
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin/
+scriptVersion="0.0.5"
 RESULT="Not Installed"
 lastConnectedVariance="7" # The number of days before reporting device has not connected to the CrowdStrike Cloud.
 
@@ -59,11 +58,11 @@ if [[ -d "/Applications/Falcon.app" ]]; then
     falconBinary="/Applications/Falcon.app/Contents/Resources/falconctl"
     falconAgentStats=$( "$falconBinary" stats agent_info Communications 2>&1 )
 
-    if [[ "${falconAgentStats}" == *"Error: Error"* ]]; then
+    if [[ "${falconAgentStats}" == *"Error"* ]]; then
 
         case ${falconAgentStats} in
             *"status.bin"*  ) RESULT="'status.bin' NOT found" ;;
-            *               ) RESULT="${falconAgentStats}" ;;
+            *               ) RESULT="Running" ;;
         esac        
 
         echo "<result>${RESULT}</result>"
