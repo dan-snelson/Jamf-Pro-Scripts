@@ -8,7 +8,7 @@
 ########################################################################################################################################
 
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin/
-scriptVersion="0.0.5"
+scriptVersion="0.0.6"
 RESULT="Not Installed"
 lastConnectedVariance="7" # The number of days before reporting device has not connected to the CrowdStrike Cloud.
 
@@ -61,6 +61,7 @@ if [[ -d "/Applications/Falcon.app" ]]; then
     if [[ "${falconAgentStats}" == *"Error"* ]]; then
 
         case ${falconAgentStats} in
+            *"Error"*       ) RESULT="${falconAgentStats}" ;;
             *"status.bin"*  ) RESULT="'status.bin' NOT found" ;;
             *               ) RESULT="Running" ;;
         esac        
