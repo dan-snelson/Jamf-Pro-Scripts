@@ -253,7 +253,7 @@ function extractScriptExtensionAttributes() {
             shebang=$(head -n1 <<< "$raw_script")
             script_body=$(tail -n +2 <<< "$raw_script")
         else
-            shebang=""
+            shebang="#!/bin/bash"
             script_body="$raw_script"
         fi
 
