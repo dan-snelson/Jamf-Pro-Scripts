@@ -266,6 +266,9 @@ function extractScriptExtensionAttributes() {
             echo "$script_body"
         } > "$filename"
 
+        # Convert to Unix line endings
+        sed -i '' $'s/\r$//' "$filename"
+
         chmod +x "$filename"
         echo "Extracted: $filename"
         printf "\n-------------------------\n\n"
