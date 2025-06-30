@@ -17,6 +17,9 @@
 # Version 0.0.2, 30-Jun-2025, Dan K. Snelson (@dan-snelson)
 #   - Simplified the script extraction logic
 #
+# Version 0.0.3, 30-Jun-2025, Dan K. Snelson (@dan-snelson)
+#   - Improved script output
+#
 ####################################################################################################
 
 
@@ -30,7 +33,7 @@
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin/
 
 # Script Version
-scriptVersion="0.0.2"
+scriptVersion="0.0.3"
 
 # Client-side Log
 scriptLog="org.churchofjesuschrist.log"
@@ -239,10 +242,11 @@ function extractScriptExtensionAttributes() {
 
     # Extract and write script contents for SCRIPT inputTypes
     while IFS= read -r entry; do
-        local name raw_script filename shebang script_body
+        local id name raw_script filename shebang script_body
+        id=$(jq -r '.id' <<< "$entry")
         name=$(jq -r '.name | gsub("[^A-Za-z0-9_]+"; "_")' <<< "$entry")
         raw_script=$(jq -r '.script' <<< "$entry")
-        filename="${output_dir}/${name}.sh"
+        filename="${output_dir}/${id}-${name}.sh"
 
         # Extract shebang if present
         if [[ "$raw_script" == \#!* ]]; then
@@ -255,20 +259,25 @@ function extractScriptExtensionAttributes() {
 
         {
             [[ -n "$shebang" ]] && echo "$shebang"
-            echo "#"
-            echo "# Name: $name"
-            echo "# Extracted by ${humanReadableScriptName} (${scriptVersion})"
-            echo "#"
+            echo ""
+            echo "###"
+            echo "# ID: ${id}"
+            echo "# Name: ${name}"
+            echo "# Extracted by ${humanReadableScriptName} (${scriptVersion}) from https://snelson.us"
+            echo "# On: ${dateTimeStamp}"
+            echo "###"
+            echo ""
             echo "$script_body"
         } > "$filename"
 
         chmod +x "$filename"
         echo "Extracted: $filename"
+        printf "\n-------------------------\n\n"
     done < <(
         jq -c '
             .results[] |
             select(.inputType == "SCRIPT") |
-            {name, script: .scriptContents}
+            {id, name, script: .scriptContents}
         ' "$json_file"
     )
 }
