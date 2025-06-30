@@ -14,6 +14,9 @@
 # Version 0.0.1, 30-Jun-2025, Dan K. Snelson (@dan-snelson)
 #   - Initial, proof-of-concept version
 #
+# Version 0.0.2, 30-Jun-2025, Dan K. Snelson (@dan-snelson)
+#   - Simplified the script extraction logic
+#
 ####################################################################################################
 
 
@@ -27,7 +30,7 @@
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin/
 
 # Script Version
-scriptVersion="0.0.1"
+scriptVersion="0.0.2"
 
 # Client-side Log
 scriptLog="org.churchofjesuschrist.log"
@@ -205,7 +208,6 @@ function generateExtensionAttributeList() {
     if [[ ! -s "${workingDirectory}/extensionAttributeList.json" ]]; then
         logFatal "Downloaded ${workingDirectory}/extensionAttributeList.json is empty (zero bytes); exiting."
     else
-
         # Output only Script Extension Attributes (i.e., inputType.type == "SCRIPT")
         jq '.results[] | select(.inputType == "SCRIPT")' "${workingDirectory}/extensionAttributeList.json" > "${workingDirectory}/scriptExtensionAttributeList.json"
 
@@ -224,57 +226,51 @@ function generateExtensionAttributeList() {
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Extract Extension Attributes
+# Extract Script Extension Attributes
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-function extractExtensionAttributes() {
-    logInfo "Extracting Extension Attributes…"
-    local input_file="${workingDirectory}/scriptExtensionAttributeList.json"
+function extractScriptExtensionAttributes() {
+    logInfo "Extracting Script Extension Attributes…"
+    local json_file="${workingDirectory}/extensionAttributeList.json"
     local output_dir="${workingDirectory}/scripts"
 
+    # Create output directory
     mkdir -p "$output_dir"
 
-    local tmp_dir
-    tmp_dir=$(mktemp -d)
+    # Extract and write script contents for SCRIPT inputTypes
+    while IFS= read -r entry; do
+        local name raw_script filename shebang script_body
+        name=$(jq -r '.name | gsub("[^A-Za-z0-9_]+"; "_")' <<< "$entry")
+        raw_script=$(jq -r '.script' <<< "$entry")
+        filename="${output_dir}/${name}.sh"
 
-    # Run JSON parsing logic inside Bash for proper read -n1 behavior
-    /bin/bash <<EOF
-input_file="${input_file}"
-output_dir="${output_dir}"
-tmp_dir="${tmp_dir}"
-object_file="\$tmp_dir/object.json"
-
-depth=0
-object=""
-
-while IFS= read -r -n1 char; do
-    object+="\$char"
-    if [[ "\$char" == "{" ]]; then
-        ((depth++))
-    elif [[ "\$char" == "}" ]]; then
-        ((depth--))
-    fi
-
-    if [[ \$depth -eq 0 && -n "\$object" ]]; then
-        echo "\$object" > "\$object_file"
-
-        if jq -e 'select(.inputType == "SCRIPT")' "\$object_file" >/dev/null 2>&1; then
-            id=\$(jq -r '.id' "\$object_file")
-            name=\$(jq -r '.name // "Unnamed"' "\$object_file" | tr -cd '[:alnum:]_-')
-            script=\$(jq -r '.scriptContents' "\$object_file")
-
-            filename="\$output_dir/\${id}-\${name}.sh"
-            echo "\$script" > "\$filename"
-            chmod +x "\$filename"
-            echo "Created \$filename"
+        # Extract shebang if present
+        if [[ "$raw_script" == \#!* ]]; then
+            shebang=$(head -n1 <<< "$raw_script")
+            script_body=$(tail -n +2 <<< "$raw_script")
+        else
+            shebang=""
+            script_body="$raw_script"
         fi
 
-        object=""
-    fi
-done < "\$input_file"
-EOF
+        {
+            [[ -n "$shebang" ]] && echo "$shebang"
+            echo "#"
+            echo "# Name: $name"
+            echo "# Extracted by ${humanReadableScriptName} (${scriptVersion})"
+            echo "#"
+            echo "$script_body"
+        } > "$filename"
 
-    rm -rf "$tmp_dir"
+        chmod +x "$filename"
+        echo "Extracted: $filename"
+    done < <(
+        jq -c '
+            .results[] |
+            select(.inputType == "SCRIPT") |
+            {name, script: .scriptContents}
+        ' "$json_file"
+    )
 }
 
 
@@ -348,7 +344,7 @@ else
 
     # Download Extension Attributes
     generateExtensionAttributeList
-    extractExtensionAttributes
+    extractScriptExtensionAttributes
 
     # Invalidate Bearer Token
     invalidateBearerToken
