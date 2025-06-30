@@ -5,3 +5,7 @@ The [EA-Download.zsh](./EA-Download.zsh) script is a command-line utility design
 
 Use `zsh EA-Download.zsh help` for first-time set up.
 
+---
+
+## EA-Execute.zsh
+The [EA-Execute.zsh](./EA-Execute.zsh) script is a command-line utility designed to execute **Script** Extension Attributes (EAs) downloaded from a Jamf Pro server. It runs each EA in a batch, capturing the output and logging it to a file.
