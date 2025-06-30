@@ -20,6 +20,9 @@
 # Version 0.0.3, 30-Jun-2025, Dan K. Snelson (@dan-snelson)
 #   - Improved script output
 #
+# Version 0.0.4, 30-Jun-2025, Dan K. Snelson (@dan-snelson)
+#   - Refactored API token handling
+#
 ####################################################################################################
 
 
@@ -33,13 +36,13 @@
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin/
 
 # Script Version
-scriptVersion="0.0.3"
+scriptVersion="0.0.4"
 
 # Client-side Log
 scriptLog="org.churchofjesuschrist.log"
 
 # Log Level [ DEBUG, INFO, WARNING, ERROR ]
-logLevel="DEBUG"
+logLevel="INFO"
 
 
 
@@ -173,22 +176,17 @@ function validateRenewBearerToken() {
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 function invalidateBearerToken() {
-    
-    validateBearerToken
 
-    if [[ "${apiBearerTokenCheck}" == 200 ]]; then
+    logInfo "Invalidating bearer token..."
 
-        logInfo "Bearer Token still valid; invalidate …"
+    response=$(curl -s -o /dev/null -w "%{http_code}" -X POST "${apiURL}/api/v1/auth/invalidate-token" \
+        -H "accept: application/json" \
+        -H "Authorization: Bearer $apiBearerToken")
 
-        apiBearerToken=$( curl "${apiURL}/api/v1/auth/invalidate-token" --silent --header "Authorization: Bearer ${apiBearerToken}" -X POST )
-        apiBearerToken=""
-
-        logInfo "Bearer Token invalidated"
-
+    if [[ "$response" == "204" ]]; then
+        logInfo "Bearer token invalidated successfully."
     else
-
-        logInfo "Bearer Token already expired"
-
+        logWarn "Failed to invalidate bearer token. HTTP Status: $response"
     fi
 
 }
@@ -211,11 +209,8 @@ function generateExtensionAttributeList() {
     if [[ ! -s "${workingDirectory}/extensionAttributeList.json" ]]; then
         logFatal "Downloaded ${workingDirectory}/extensionAttributeList.json is empty (zero bytes); exiting."
     else
-        # Output only Script Extension Attributes (i.e., inputType.type == "SCRIPT")
-        jq '.results[] | select(.inputType == "SCRIPT")' "${workingDirectory}/extensionAttributeList.json" > "${workingDirectory}/scriptExtensionAttributeList.json"
-
-        extensionAttributeIDs=$( jq -r '.id' "${workingDirectory}/scriptExtensionAttributeList.json" )
-        extensionAttributeNames=$( jq -r '.name' "${workingDirectory}/scriptExtensionAttributeList.json" )
+        extensionAttributeIDs=$( jq -r '.id' "${workingDirectory}/extensionAttributeList.json" )
+        extensionAttributeNames=$( jq -r '.name' "${workingDirectory}/extensionAttributeList.json" )
     fi
 
     if [[ "${logLevel}" == "DEBUG" ]]; then
@@ -261,10 +256,11 @@ function extractScriptExtensionAttributes() {
             [[ -n "$shebang" ]] && echo "$shebang"
             echo ""
             echo "###"
-            echo "# ID: ${id}"
             echo "# Name: ${name}"
-            echo "# Extracted by ${humanReadableScriptName} (${scriptVersion}) from https://snelson.us"
-            echo "# On: ${dateTimeStamp}"
+            echo "#  URL: ${apiURL}/view/settings/computer-management/computer-extension-attributes/${id}"
+            echo "#   ID: ${id}"
+            echo "#"
+            echo "# Extracted on: ${dateTimeStamp} by ${humanReadableScriptName} (${scriptVersion}) from https://snelson.us"
             echo "###"
             echo ""
             echo "$script_body"
@@ -362,5 +358,6 @@ else
     open -R "${workingDirectory}"
     logInfo "Working directory opened in Finder: ${workingDirectory}"
 
-fi
+    exit 0
 
+fi
