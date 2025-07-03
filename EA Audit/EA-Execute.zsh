@@ -103,7 +103,7 @@ function executeScript() {
     local duration_ns=$((end_time - start_time))
     local duration_sec=$(bc <<< "scale=2; $duration_ns/1000000000")
 
-    SCRIPT_DURATIONS["$script_name"]="$duration_sec"
+    SCRIPT_DURATIONS[$script_name]="$duration_sec"
 
     echo "✅ $script_name  completed in ${duration_sec}s"
     echo "$script_name completed in ${duration_sec}s" >> "$MASTER_LOG"
