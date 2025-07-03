@@ -14,6 +14,9 @@
 # Version 0.0.1, 30-Jun-2025, Dan K. Snelson (@dan-snelson)
 #   - Initial, proof-of-concept version
 #
+# Version 0.0.2, 03-Jul-2025, Dan K. Snelson (@dan-snelson)
+#   - Added execution summary (sorted from longest to shortest)
+#
 ####################################################################################################
 
 
@@ -27,7 +30,7 @@
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin/
 
 # Script Version
-scriptVersion="0.0.1"
+scriptVersion="0.0.2"
 
 # Client-side Log
 scriptLog="org.churchofjesuschrist.log"
@@ -51,6 +54,9 @@ organizationScriptName="EAX"
 
 # Date Time Stamp
 dateTimeStamp=$( date '+%Y-%m-%d-%H%M%S' )
+
+# Array to store script durations
+typeset -A SCRIPT_DURATIONS
 
 
 
@@ -97,8 +103,10 @@ function executeScript() {
     local duration_ns=$((end_time - start_time))
     local duration_sec=$(bc <<< "scale=2; $duration_ns/1000000000")
 
+    SCRIPT_DURATIONS["$script_name"]="$duration_sec"
+
     echo "✅ $script_name  completed in ${duration_sec}s"
-    echo "$script_name completed in ${duration_sec}s" >> "$MASTER_LOG" 
+    echo "$script_name completed in ${duration_sec}s" >> "$MASTER_LOG"
     echo "" >> "$MASTER_LOG"
     echo "----------------------------------"
 }
@@ -155,7 +163,14 @@ for script in "$SCRIPT_DIR"/*(.x); do
     fi
 done
 
-# Complete the batch run
+# Output durations sorted from longest to shortest
+echo "" | tee -a "$MASTER_LOG"
+echo "Execution Summary (Longest to Shortest):" | tee -a "$MASTER_LOG"
+for entry in ${(k)SCRIPT_DURATIONS}; do
+    echo "$entry: ${SCRIPT_DURATIONS[$entry]}s"
+done | sort -t: -k2 -nr | tee -a "$MASTER_LOG"
+
+echo "" | tee -a "$MASTER_LOG"
 echo "Batch run complete at $(date)" | tee -a "$MASTER_LOG"
 echo "Master log saved to: $MASTER_LOG"
 echo "Elapsed Time: $(printf '%dh:%dm:%ds\n' $((SECONDS/3600)) $((SECONDS%3600/60)) $((SECONDS%60)))" | tee -a "$MASTER_LOG"
