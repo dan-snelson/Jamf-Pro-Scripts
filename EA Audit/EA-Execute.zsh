@@ -11,11 +11,8 @@
 #
 # HISTORY
 #
-# Version 0.0.1, 30-Jun-2025, Dan K. Snelson (@dan-snelson)
-#   - Initial, proof-of-concept version
-#
-# Version 0.0.2, 03-Jul-2025, Dan K. Snelson (@dan-snelson)
-#   - Added execution summary (sorted from longest to shortest)
+# Version 1.0.0, 30-Sep-2025, Dan K. Snelson (@dan-snelson)
+#   - First "official" version (tested with Jamf Pro 11.21.0)
 #
 ####################################################################################################
 
@@ -30,13 +27,14 @@
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin/
 
 # Script Version
-scriptVersion="0.0.2"
+scriptVersion="1.0.0"
 
 # Client-side Log
-scriptLog="org.churchofjesuschrist.log"
+# scriptLog="org.churchofjesuschrist.log"
+scriptLog="$(dirname "$1")/org.churchofjesuschrist.log"
 
 # Log Level [ DEBUG, INFO, WARNING, ERROR ]
-logLevel="INFO"
+logLevel="DEBUG"
 
 # Elapsed Time
 SECONDS="0"
@@ -78,7 +76,7 @@ function executeScript() {
     echo ""
     echo "----------------------------------"
     echo "▶ Executing: $script_name"
-    echo "▶ Executing: $script_name" >> "$MASTER_LOG"
+    echo "▶ Executing: $script_name" >> "${scriptLog}"
 
     # Log file for individual script
     local script_log="$LOG_DIR/${script_name}_${RUN_TIMESTAMP}.log"
@@ -92,7 +90,7 @@ function executeScript() {
     # Run the script and display + log output
     {
         zsh "$script_path"
-    } 2>&1 | tee -a "$script_log" | tee -a "$MASTER_LOG"
+    } 2>&1 | tee -a "$script_log" | tee -a "${scriptLog}"
 
     {
         echo "--------------------------"
@@ -106,8 +104,8 @@ function executeScript() {
     SCRIPT_DURATIONS[$script_name]="$duration_sec"
 
     echo "✅ $script_name  completed in ${duration_sec}s"
-    echo "$script_name completed in ${duration_sec}s" >> "$MASTER_LOG"
-    echo "" >> "$MASTER_LOG"
+    echo "$script_name completed in ${duration_sec}s" >> "${scriptLog}"
+    echo "" >> "${scriptLog}"
     echo "----------------------------------"
 }
 
@@ -121,6 +119,9 @@ function executeScript() {
 
 # Clear the screen
 /usr/bin/clear
+
+# Logging Preamble
+echo "\n\n\n###\n# $humanReadableScriptName (${scriptVersion})\n# https://snelson.us/audit\n#\n# Log Level: ${logLevel}\n###\n" | tee -a "${scriptLog}"
 
 # Confirm script is running as root
 if [[ $(id -u) -ne 0 ]]; then
@@ -147,14 +148,12 @@ mkdir -p "$LOG_DIR"
 
 # Timestamp for this run
 RUN_TIMESTAMP=$(date "+%Y-%m-%d-%H%M%S")
-# MASTER_LOG="$(cd "$LOG_DIR/.." && pwd)/execution_$RUN_TIMESTAMP.log"
-MASTER_LOG="$(cd "$SCRIPT_DIR/.." && pwd)/${scriptLog}"
 
 # Log Script Start
-echo "Starting script batch run at $(date)" | tee -a "$MASTER_LOG"
-echo "Script directory: $SCRIPT_DIR" | tee -a "$MASTER_LOG"
-echo "Logging to: $LOG_DIR" | tee -a "$MASTER_LOG"
-echo "--------------------------------------" | tee -a "$MASTER_LOG"
+echo "Starting script batch run at $(date)" | tee -a "${scriptLog}"
+echo "Script directory: $SCRIPT_DIR" | tee -a "${scriptLog}"
+echo "Logging to: $LOG_DIR" | tee -a "${scriptLog}"
+echo "--------------------------------------" | tee -a "${scriptLog}"
 
 # Run All Executable Scripts
 for script in "$SCRIPT_DIR"/*(.x); do
@@ -164,19 +163,28 @@ for script in "$SCRIPT_DIR"/*(.x); do
 done
 
 # Output durations sorted from longest to shortest
-echo "" | tee -a "$MASTER_LOG"
-echo "Execution Summary (Longest to Shortest):" | tee -a "$MASTER_LOG"
+echo "" | tee -a "${scriptLog}"
+echo "" | tee -a "${scriptLog}"
+echo "---------------------------------------" | tee -a "${scriptLog}"
+echo "Execution Summary (Longest to Shortest)" | tee -a "${scriptLog}"
+echo "---------------------------------------" | tee -a "${scriptLog}"
 for entry in ${(k)SCRIPT_DURATIONS}; do
     echo "$entry: ${SCRIPT_DURATIONS[$entry]}s"
-done | sort -t: -k2 -nr | tee -a "$MASTER_LOG"
+done | sort -t: -k2 -nr | tee -a "${scriptLog}"
+echo "----------------------------------------" | tee -a "${scriptLog}"
 
-echo "" | tee -a "$MASTER_LOG"
-echo "Batch run complete at $(date)" | tee -a "$MASTER_LOG"
-echo "Master log saved to: $MASTER_LOG"
-echo "Elapsed Time: $(printf '%dh:%dm:%ds\n' $((SECONDS/3600)) $((SECONDS%3600/60)) $((SECONDS%60)))" | tee -a "$MASTER_LOG"
+echo "" | tee -a "${scriptLog}"
+echo "" | tee -a "${scriptLog}"
+echo "" | tee -a "${scriptLog}"
+echo "Batch run complete at $(date)" | tee -a "${scriptLog}"
+echo "Master log saved to: ${scriptLog}"
+echo "Elapsed Time: $(printf '%dh:%dm:%ds\n' $((SECONDS/3600)) $((SECONDS%3600/60)) $((SECONDS%60)))" | tee -a "${scriptLog}"
 
 # Set permissions for the log directory
 chmod -R 777 "$LOG_DIR"
+
+# Open the log directory in Finder
+open -R "${scriptLog}"
 
 # Exit
 exit 0
