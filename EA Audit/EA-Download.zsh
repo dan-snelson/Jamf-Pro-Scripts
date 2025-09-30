@@ -11,17 +11,8 @@
 #
 # HISTORY
 #
-# Version 0.0.1, 30-Jun-2025, Dan K. Snelson (@dan-snelson)
-#   - Initial, proof-of-concept version
-#
-# Version 0.0.2, 30-Jun-2025, Dan K. Snelson (@dan-snelson)
-#   - Simplified the script extraction logic
-#
-# Version 0.0.3, 30-Jun-2025, Dan K. Snelson (@dan-snelson)
-#   - Improved script output
-#
-# Version 0.0.4, 30-Jun-2025, Dan K. Snelson (@dan-snelson)
-#   - Refactored API token handling
+# Version 1.0.0, 30-Sep-2025, Dan K. Snelson (@dan-snelson)
+#   - First "official" version (tested with Jamf Pro 11.21.0)
 #
 ####################################################################################################
 
@@ -36,14 +27,18 @@
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin/
 
 # Script Version
-scriptVersion="0.0.4"
+scriptVersion="1.0.0"
 
 # Client-side Log
 scriptLog="org.churchofjesuschrist.log"
 
 # Log Level [ DEBUG, INFO, WARNING, ERROR ]
-logLevel="INFO"
+logLevel="DEBUG"
 
+# Path of the current script
+typeset -gr scriptPath=${(%):-%x}   
+typeset -gr scriptName=${scriptPath:t}
+typeset -gr scriptBase=${scriptPath:t:r}
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -75,11 +70,12 @@ function log() {
   echo "${organizationScriptName} ($scriptVersion): $( date +%Y-%m-%d\ %H:%M:%S ) - [${1}] ${2}" | tee -a "${workingDirectory}/${scriptLog}"
 }
 
-function logInfo()  { log INFO "$@"; }
-function logWarn()  { log WARNING "$@"; }
-function logError() { log ERROR "$@"; }
-function logFatal() { log FATAL "$@"; exit 1; }
-function logDebug() { [[ "$logLevel" == "DEBUG" ]] && log DEBUG "$@"; }
+function logDebug()     { [[ "$logLevel" == "DEBUG" ]] && log DEBUG "$@"; }
+function logError()     { log ERROR "$@"; }
+function logFatal()     { log FATAL "$@"; exit 1; }
+function logInfo()      { log INFO "$@"; }
+function logNotice()    { log NOTICE "$@"; }
+function logWarn()      { log WARNING "$@"; }
 
 
 
@@ -94,7 +90,47 @@ function help() {
     printf "use the following commands to create entries in Keychain Access:\n\n"
     printf "    security add-generic-password -s \"${organizationScriptName:l}ApiUrl\" -a ${USER} -w \"${apiURL}\"\n"
     printf "    security add-generic-password -s \"${organizationScriptName:l}ApiClientID\" -a ${USER} -w \"API Client ID Goes Here\"\n"
-    printf "    security add-generic-password -s \"${organizationScriptName:l}ApiClientSecret\" -a ${USER} -w \"API Client Secret Goes Here\"\n\n"
+    printf "    security add-generic-password -s \"${organizationScriptName:l}ApiClientSecret\" -a ${USER} -w \"API Client Secret Goes Here\""
+    printf "\n\nUse \"zsh ${scriptName} configuration\" with logLevel set to DEBUG to display API credentials.\n\n\n"
+
+}
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Configuration
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+function configuration() {
+
+    logNotice "Configuration:"
+    local apiURL=$( security find-generic-password -s "${organizationScriptName:l}ApiUrl" -a "${USER}" -w 2>/dev/null )
+    local apiClientID=$( security find-generic-password -s "${organizationScriptName:l}ApiClientID" -a "${USER}" -w 2>/dev/null )
+    local apiClientSecret=$( security find-generic-password -s "${organizationScriptName:l}ApiClientSecret" -a "${USER}" -w 2>/dev/null )
+
+    if [ -z ${apiURL} ] || [ -z ${apiClientID} ] || [ -z ${apiClientSecret} ]; then
+        logFatal "Unable to read API credentials. Please run \"zsh ${scriptName} help\" to configure API credentials."
+    else
+        if [[ ${logLevel} == "DEBUG" ]]; then
+            logDebug "Displaying API credentials in plain text (logLevel is set to DEBUG)"
+            echo "          URL: ${apiURL}"
+            echo "    Client ID: ${apiClientID}"
+            echo "Client Secret: ${apiClientSecret}"
+        else
+            logInfo "Displaying masked API credentials (logLevel is not set to DEBUG)"
+            maskedApiURL="${apiURL:0:3}$(printf '%*s' $((${#apiURL}-4)) '' | tr ' ' '*')${apiURL: -3}"
+            maskedApiClientID="${apiClientID:0:3}$(printf '%*s' $((${#apiClientID}-4)) '' | tr ' ' '*')${apiClientID: -3}"
+            maskedApiClientSecret="${apiClientSecret:0:3}$(printf '%*s' $((${#apiClientSecret}-4)) '' | tr ' ' '*')${apiClientSecret: -3}"
+            echo "          URL: ${apiURL}"
+            echo "    Client ID: ${maskedApiClientID}"
+            echo "Client Secret: ${maskedApiClientSecret}"
+        fi
+    fi
+
+    printf "\n\n\nUse the following commands to update entries in Keychain Access:\n\n"
+    printf "    security add-generic-password -U -s \"${organizationScriptName:l}ApiUrl\" -a ${USER} -w \"${apiURL}\"\n"
+    printf "    security add-generic-password -U -s \"${organizationScriptName:l}ApiClientID\" -a ${USER} -w \"API Client ID Goes Here\"\n"
+    printf "    security add-generic-password -U -s \"${organizationScriptName:l}ApiClientSecret\" -a ${USER} -w \"API Client Secret Goes Here\"\n\n"
 
 }
 
@@ -106,7 +142,7 @@ function help() {
 
 function obtainBearerToken() {
     
-    logInfo "Obtain Bearer Token …"
+    logNotice "Obtain Bearer Token …"
 
     apiBearerToken=$( curl -s -X POST "${apiURL}/api/oauth/token" \
     -H "Content-Type: application/x-www-form-urlencoded" \
@@ -134,6 +170,8 @@ function validateBearerToken() {
     logDebug "apiBearerTokenCheck: ${apiBearerTokenCheck}"
 
     if [[ "${apiBearerTokenCheck}" != 200 ]]; then
+        logError "INVALID API CREDENTIALS"
+        logError "Please run \"zsh ${scriptName} configuration\" with logLevel set to DEBUG to display API credentials."
         logFatal "Error: ${apiBearerTokenCheck}; exiting."
     else
         logInfo "Bearer Token is valid."
@@ -177,7 +215,7 @@ function validateRenewBearerToken() {
 
 function invalidateBearerToken() {
 
-    logInfo "Invalidating bearer token..."
+    logNotice "Invalidating bearer token..."
 
     response=$(curl -s -o /dev/null -w "%{http_code}" -X POST "${apiURL}/api/v1/auth/invalidate-token" \
         -H "accept: application/json" \
@@ -199,7 +237,7 @@ function invalidateBearerToken() {
 
 function generateExtensionAttributeList() {
 
-    logInfo "Generate Extension Attribute List …"
+    logNotice "Generate Extension Attribute List …"
     
     extensionAttributeList=$( curl -s -X GET "${apiURL}/api/v1/computer-extension-attributes" \
         --header "Authorization: Bearer ${apiBearerToken}" \
@@ -209,8 +247,8 @@ function generateExtensionAttributeList() {
     if [[ ! -s "${workingDirectory}/extensionAttributeList.json" ]]; then
         logFatal "Downloaded ${workingDirectory}/extensionAttributeList.json is empty (zero bytes); exiting."
     else
-        extensionAttributeIDs=$( jq -r '.id' "${workingDirectory}/extensionAttributeList.json" )
-        extensionAttributeNames=$( jq -r '.name' "${workingDirectory}/extensionAttributeList.json" )
+        extensionAttributeIDs=$(jq -r '.results[].id'  "${workingDirectory}/extensionAttributeList.json")
+        extensionAttributeNames=$(jq -r '.results[].name' "${workingDirectory}/extensionAttributeList.json")
     fi
 
     if [[ "${logLevel}" == "DEBUG" ]]; then
@@ -228,7 +266,7 @@ function generateExtensionAttributeList() {
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 function extractScriptExtensionAttributes() {
-    logInfo "Extracting Script Extension Attributes…"
+    logNotice "Extracting Script Extension Attributes…"
     local json_file="${workingDirectory}/extensionAttributeList.json"
     local output_dir="${workingDirectory}/scripts"
 
@@ -260,7 +298,7 @@ function extractScriptExtensionAttributes() {
             echo "#  URL: ${apiURL}/view/settings/computer-management/computer-extension-attributes/${id}"
             echo "#   ID: ${id}"
             echo "#"
-            echo "# Extracted on: ${dateTimeStamp} by ${humanReadableScriptName} (${scriptVersion}) from https://snelson.us"
+            echo "# Extracted on: ${dateTimeStamp} by ${humanReadableScriptName} (${scriptVersion}) from https://snelson.us/audit"
             echo "###"
             echo ""
             echo "$script_body"
@@ -298,6 +336,8 @@ workingDirectory="$(cd "$(dirname "$0")" && pwd)/${dateTimeStamp}"
 mkdir -p "${workingDirectory}"
 logInfo "Created working directory: ${workingDirectory}"
 
+
+
 # Client-side Logging
 if [[ ! -f "${workingDirectory}/${scriptLog}" ]]; then
     touch "${workingDirectory}/${scriptLog}"
@@ -313,17 +353,28 @@ fi
 
 
 # Pre-flight Check: Logging Preamble
-logInfo "\n\n###\n# $humanReadableScriptName (${scriptVersion})\n# Log Level: ${logLevel}\n###\n"
+logInfo "\n\n###\n# $humanReadableScriptName (${scriptVersion})\n# https://snelson.us/audit\n#\n# Log Level: ${logLevel}\n###\n"
 
 
 
 # Check for help command
 if [[ "${1}" = "help" ]]; then
 
-    logInfo "Displaying Help …"
+    logNotice "Displaying Help …"
     help
     exit 0
 
+
+
+# Check for configuration command
+elif [[ "${1}" = "configuration" ]]; then
+
+    logNotice "Displaying Configuration …"
+    configuration
+    exit 0
+
+
+# Download Extension Attributes
 else
 
     # Retrieve API Credentials from Keychain
@@ -333,7 +384,7 @@ else
     local apiClientSecret=$( security find-generic-password -s "${organizationScriptName:l}ApiClientSecret" -a "${USER}" -w 2>/dev/null )
 
     if [ -z ${apiURL} ] || [ -z ${apiClientID} ] || [ -z ${apiClientSecret} ]; then
-        logFatal "Unable to read API credentials. Please run \"zsh ${0##*/} help\" to configure API credentials."
+        logFatal "Unable to read API credentials. Please run \"zsh ${scriptName} help\" to configure API credentials."
     fi
 
     if [[ ${logLevel} == "DEBUG" ]]; then
