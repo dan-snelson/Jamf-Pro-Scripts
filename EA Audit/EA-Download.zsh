@@ -14,6 +14,10 @@
 # Version 1.0.0, 30-Sep-2025, Dan K. Snelson (@dan-snelson)
 #   - First "official" version (tested with Jamf Pro 11.21.0)
 #
+# Version 1.0.1, 04-Mar-2026, Dan K. Snelson (@dan-snelson)
+#   - Added pagination so discovery is complete when there are more than 100 EAs (thanks for the heads-up, I.S.!)
+#   - Added discovery summary logging and masked sensitive credentials in DEBUG logs
+#
 ####################################################################################################
 
 
@@ -27,7 +31,7 @@
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin/
 
 # Script Version
-scriptVersion="1.0.0"
+scriptVersion="1.0.1"
 
 # Client-side Log
 scriptLog="org.churchofjesuschrist.log"
@@ -77,6 +81,19 @@ function logInfo()      { log INFO "$@"; }
 function logNotice()    { log NOTICE "$@"; }
 function logWarn()      { log WARNING "$@"; }
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Mask credentials for display
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+function maskCredential() {
+    local credential="${1}"
+    if [[ -z "${credential}" ]] || [[ ${#credential} -lt 7 ]]; then
+        echo "***"
+    else
+        echo "${credential:0:3}$(printf '%*s' $((${#credential}-4)) '' | tr ' ' '*')${credential: -3}"
+    fi
+}
+
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -118,9 +135,9 @@ function configuration() {
             echo "Client Secret: ${apiClientSecret}"
         else
             logInfo "Displaying masked API credentials (logLevel is not set to DEBUG)"
-            maskedApiURL="${apiURL:0:3}$(printf '%*s' $((${#apiURL}-4)) '' | tr ' ' '*')${apiURL: -3}"
-            maskedApiClientID="${apiClientID:0:3}$(printf '%*s' $((${#apiClientID}-4)) '' | tr ' ' '*')${apiClientID: -3}"
-            maskedApiClientSecret="${apiClientSecret:0:3}$(printf '%*s' $((${#apiClientSecret}-4)) '' | tr ' ' '*')${apiClientSecret: -3}"
+            maskedApiURL=$(maskCredential "${apiURL}")
+            maskedApiClientID=$(maskCredential "${apiClientID}")
+            maskedApiClientSecret=$(maskCredential "${apiClientSecret}")
             echo "          URL: ${apiURL}"
             echo "    Client ID: ${maskedApiClientID}"
             echo "Client Secret: ${maskedApiClientSecret}"
@@ -151,7 +168,7 @@ function obtainBearerToken() {
     --data-urlencode "grant_type=client_credentials" \
     | jq -r '.access_token' )
 
-    logDebug "apiBearerToken: ${apiBearerToken}"
+    logDebug "apiBearerToken: $(maskCredential "${apiBearerToken}")"
 
 }
 
@@ -238,10 +255,67 @@ function invalidateBearerToken() {
 function generateExtensionAttributeList() {
 
     logNotice "Generate Extension Attribute List …"
-    
-    extensionAttributeList=$( curl -s -X GET "${apiURL}/api/v1/computer-extension-attributes" \
-        --header "Authorization: Bearer ${apiBearerToken}" \
-        -o "${workingDirectory}/extensionAttributeList.json" )
+
+    local page=0
+    local pageSize=100
+    local totalCount=0
+    local fetchedCount=0
+    local pagesFetched=0
+    local pageResultCount=0
+    local pagedResponse
+    local pagedResultsFile="${workingDirectory}/extensionAttributeList.pages.jsonl"
+    local discoveredCount=0
+
+    : > "${pagedResultsFile}"
+
+    while true; do
+
+        pagedResponse=$( curl -s -X GET "${apiURL}/api/v1/computer-extension-attributes?page=${page}&page-size=${pageSize}" \
+            --header "Authorization: Bearer ${apiBearerToken}" )
+
+        if [[ -z "${pagedResponse}" ]]; then
+            logFatal "Empty response received while requesting page ${page}; exiting."
+        fi
+
+        if ! jq -e . >/dev/null 2>&1 <<< "${pagedResponse}"; then
+            logFatal "Invalid JSON response received while requesting page ${page}; exiting."
+        fi
+
+        # Use printf (not echo) so JSON escape sequences are preserved verbatim.
+        printf '%s\n' "${pagedResponse}" >> "${pagedResultsFile}"
+
+        if (( page == 0 )); then
+            totalCount=$(jq -r '.totalCount // 0' <<< "${pagedResponse}")
+            logDebug "Total Extension Attributes reported by API: ${totalCount}"
+        fi
+
+        pageResultCount=$(jq -r '(.results // []) | length' <<< "${pagedResponse}")
+        (( fetchedCount += pageResultCount ))
+        if (( pageResultCount > 0 )); then
+            (( pagesFetched += 1 ))
+        fi
+        (( page += 1 ))
+
+        logDebug "Fetched page ${page} (${pageResultCount} records; ${fetchedCount}/${totalCount})"
+
+        if (( pageResultCount == 0 )); then
+            break
+        fi
+
+        if (( totalCount > 0 && fetchedCount >= totalCount )); then
+            break
+        fi
+
+    done
+
+    if ! jq -s '{
+        totalCount: (.[0].totalCount // ([.[].results[]?] | length)),
+        results: [.[].results[]?]
+    }' "${pagedResultsFile}" > "${workingDirectory}/extensionAttributeList.json"; then
+        logFatal "Failed to merge paged extension attribute responses into extensionAttributeList.json; exiting."
+    fi
+
+    rm -f "${pagedResultsFile}"
 
     # Check if the downloaded file is zero bytes
     if [[ ! -s "${workingDirectory}/extensionAttributeList.json" ]]; then
@@ -249,6 +323,8 @@ function generateExtensionAttributeList() {
     else
         extensionAttributeIDs=$(jq -r '.results[].id'  "${workingDirectory}/extensionAttributeList.json")
         extensionAttributeNames=$(jq -r '.results[].name' "${workingDirectory}/extensionAttributeList.json")
+        discoveredCount=$(jq -r '(.results // []) | length' "${workingDirectory}/extensionAttributeList.json")
+        logInfo "Discovered ${discoveredCount} Extension Attributes across ${pagesFetched} page(s)."
     fi
 
     if [[ "${logLevel}" == "DEBUG" ]]; then
@@ -388,8 +464,8 @@ else
     fi
 
     if [[ ${logLevel} == "DEBUG" ]]; then
-        maskedApiClientID="${apiClientID:0:3}$(printf '%*s' $((${#apiClientID}-4)) '' | tr ' ' '*')${apiClientID: -3}"
-        maskedApiClientSecret="${apiClientSecret:0:3}$(printf '%*s' $((${#apiClientSecret}-4)) '' | tr ' ' '*')${apiClientSecret: -3}"
+        maskedApiClientID=$(maskCredential "${apiClientID}")
+        maskedApiClientSecret=$(maskCredential "${apiClientSecret}")
         logDebug "API URL: ${apiURL}"
         logDebug "API Client ID: ${maskedApiClientID}"
         logDebug "API Client Secret: ${maskedApiClientSecret}"
